@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import './LoginForm.css';
 
 function LoginForm() {
+  const { login } = useAuth();
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -16,6 +19,8 @@ function LoginForm() {
     email: false,
     password: false,
   });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 입력 필드 변경 핸들러
   const handleChange = (e) => {
@@ -89,13 +94,33 @@ function LoginForm() {
   };
 
   // 폼 제출 핸들러
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validateForm()) {
-      console.log('로그인 데이터:', formData);
-      // TODO: API 호출 로직 추가 (SCRUM-14에서 구현)
-      alert('로그인 기능은 백엔드 연동 후 동작합니다.');
+      setIsSubmitting(true);
+
+      try {
+        const result = await login(formData.email, formData.password);
+
+        if (result.success) {
+          alert('로그인 성공! (Mock 데이터)');
+          // TODO: SCRUM-15에서 실제 페이지 리다이렉션 구현
+        } else {
+          setErrors((prev) => ({
+            ...prev,
+            email: result.error || '로그인에 실패했습니다.',
+          }));
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        setErrors((prev) => ({
+          ...prev,
+          email: '로그인 중 오류가 발생했습니다.',
+        }));
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -151,8 +176,8 @@ function LoginForm() {
           </div>
 
           {/* 로그인 버튼 */}
-          <button type="submit" className="btn-primary">
-            로그인
+          <button type="submit" className="btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? '로그인 중...' : '로그인'}
           </button>
         </form>
 
