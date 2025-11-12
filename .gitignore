@@ -13,8 +13,9 @@ frontend/.vite/
 frontend/coverage/
 frontend/.cache/
 
-# Backend (Spring Boot + Maven)
+# Backend (Spring Boot + Gradle)
 backend/target/
+backend/.gradle/
 backend/.mvn/
 backend/mvnw
 backend/mvnw.cmd
