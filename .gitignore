@@ -65,4 +65,4 @@ claudedocs/
 # OS
 Thumbs.db
 .DS_Store
-desktop.ini
+desktop.ini.playwright-mcp/

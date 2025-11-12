@@ -21,7 +21,10 @@
       "Bash(docker --version:*)",
       "Bash(docker compose:*)",
       "Bash(test:*)",
-      "Bash(gh auth status:*)"
+      "Bash(gh auth status:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

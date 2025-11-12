@@ -1,35 +1,31 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import LoginForm from './components/LoginForm';
+import SignupForm from './components/SignupForm';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentForm, setCurrentForm] = useState('login'); // 'login' or 'signup'
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <div className="app">
+      <div className="form-toggle">
+        <button
+          className={`toggle-btn ${currentForm === 'login' ? 'active' : ''}`}
+          onClick={() => setCurrentForm('login')}
+        >
+          로그인
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+        <button
+          className={`toggle-btn ${currentForm === 'signup' ? 'active' : ''}`}
+          onClick={() => setCurrentForm('signup')}
+        >
+          회원가입
+        </button>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+
+      {currentForm === 'login' ? <LoginForm /> : <SignupForm />}
+    </div>
+  );
 }
 
-export default App
+export default App;
