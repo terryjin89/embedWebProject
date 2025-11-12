@@ -236,6 +236,133 @@ backend/
 - **컴포넌트 구조**: React Hooks를 사용한 함수형 컴포넌트
 - **상태 관리**: 전역 상태를 위한 React Context (AuthContext)
 
+## Atlassian MCP 기반 작업 프로세스 (필수 준수)
+
+모든 개발 작업은 **반드시** 다음 프로세스를 따라야 합니다:
+
+### 1️⃣ 티켓 확인 및 작업 시작
+
+```bash
+# Atlassian MCP를 통해 Jira 프로젝트의 티켓 조회
+# embed-project에서 진행할 티켓을 확인
+```
+
+**작업 내용**:
+- Jira에서 할당된 티켓 확인
+- 티켓의 Description, Acceptance Criteria 검토
+- 작업 범위 및 요구사항 명확히 이해
+
+### 2️⃣ Git 브랜치 생성 및 작업 진행
+
+```bash
+# 세션 시작 프로토콜
+git status && git branch
+gh auth status
+
+# Jira 티켓 ID를 포함한 feature 브랜치 생성
+git checkout -b feature/[JIRA-ID]-[간단한-설명]
+
+# 예시: git checkout -b feature/EMBED-101-login-component
+```
+
+**작업 내용**:
+- GitHub CLI 문법을 따라 브랜치 생성
+- 점진적으로 커밋하며 개발 진행
+- 커밋 메시지에 Jira 티켓 ID 포함 (`🎫 EMBED-XXX`)
+
+### 3️⃣ Acceptance Criteria 체크리스트 확인
+
+**작업 완료 후**:
+- Jira 티켓의 **Acceptance Criteria** 항목별로 체크
+- 모든 요구사항이 구현되었는지 확인
+- 누락된 항목이 있으면 추가 작업 진행
+
+**체크리스트 예시**:
+- [ ] 로그인 폼 UI 구현 완료
+- [ ] 폼 검증 로직 구현 완료
+- [ ] API 연동 완료
+- [ ] 에러 핸들링 구현 완료
+
+### 4️⃣ 테스트 수행
+
+**프론트엔드 테스트** (Playwright 활용):
+```bash
+# Playwright를 사용한 E2E 테스트 실행
+# - 사용자 시나리오 테스트
+# - UI 컴포넌트 동작 검증
+# - 접근성 테스트
+```
+
+**백엔드 테스트** (API 호출):
+```bash
+# REST API 엔드포인트 테스트
+# - Postman, curl, 또는 Axios를 통한 API 호출
+# - 응답 코드 및 데이터 검증
+# - 에러 케이스 테스트
+```
+
+**테스트 항목**:
+- 정상 동작 케이스
+- 에러 케이스 (유효하지 않은 입력, 네트워크 오류 등)
+- 경계값 테스트
+- 사용자 시나리오 플로우
+
+### 5️⃣ Pull Request 생성 및 병합
+
+**테스트 통과 후**:
+```bash
+# feature 브랜치 푸시
+git push -u origin feature/EMBED-101-login-component
+
+# GitHub CLI를 통한 PR 생성
+gh pr create --title "feat(auth): 로그인 컴포넌트 구현" \
+  --body "## 요약
+[구현 내용 요약]
+
+## Jira 티켓
+🎫 EMBED-101
+
+## Acceptance Criteria 체크리스트
+- [x] 로그인 폼 UI 구현 완료
+- [x] 폼 검증 로직 구현 완료
+- [x] API 연동 완료
+- [x] 에러 핸들링 구현 완료
+
+## 테스트 결과
+- [x] Playwright E2E 테스트 통과
+- [x] API 호출 테스트 통과
+- [x] 에러 케이스 검증 완료"
+
+# PR 병합 (개인 프로젝트)
+gh pr merge --squash --delete-branch
+
+# 로컬 main 브랜치 업데이트
+git checkout main
+git pull origin main
+```
+
+**병합 후**:
+- GitHub에 자동 업로드됨
+- 로컬 및 원격 feature 브랜치 삭제
+- Jira 티켓 상태를 "Done"으로 업데이트
+
+### 작업 프로세스 준수 사항
+
+**필수 체크리스트**:
+- ✅ Jira 티켓 확인 후 작업 시작
+- ✅ 브랜치 명명 규칙 준수 (`feature/[JIRA-ID]-[설명]`)
+- ✅ Acceptance Criteria 모두 체크
+- ✅ 테스트 수행 (프론트엔드: Playwright, 백엔드: API 호출)
+- ✅ 테스트 통과 후 PR 생성 및 병합
+- ✅ GitHub CLI를 활용한 워크플로우 준수
+
+**금지 사항**:
+- ❌ Jira 티켓 없이 작업 진행
+- ❌ Acceptance Criteria 체크 생략
+- ❌ 테스트 없이 PR 생성
+- ❌ 테스트 실패 시 강제 병합
+- ❌ 브랜치 명명 규칙 위반
+
 ## GitHub CLI를 활용한 Git 워크플로우
 
 ### GitHub CLI 설정
