@@ -7,14 +7,13 @@
   align-items: center;
   min-height: 100vh;
   padding: var(--spacing-lg);
-  background-color: var(--color-background-secondary);
 }
 
 /* Signup Card */
 .signup-card {
   width: 100%;
-  max-width: 440px;
-  padding: var(--spacing-2xl);
+  max-width: 380px;
+  padding: var(--spacing-xl);
   background-color: var(--color-background-primary);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
