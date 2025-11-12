@@ -13,7 +13,15 @@
       "Bash(tree:*)",
       "Bash(gradle wrapper:*)",
       "Bash(curl:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(cat:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)",
+      "Bash(./gradlew clean build:*)",
+      "Bash(docker --version:*)",
+      "Bash(docker compose:*)",
+      "Bash(test:*)",
+      "Bash(gh auth status:*)"
     ],
     "deny": [],
     "ask": []
