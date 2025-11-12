@@ -236,14 +236,31 @@ backend/
 - **Component Structure**: Functional components with React Hooks
 - **State Management**: React Context for global state (AuthContext)
 
-## Git Workflow
+## Git Workflow with GitHub CLI
+
+### GitHub CLI Setup
+
+**Installation**:
+- Windows: `winget install --id GitHub.cli`
+- macOS: `brew install gh`
+- Linux: See https://github.com/cli/cli#installation
+
+**Authentication**:
+```bash
+# Authenticate with GitHub
+gh auth login
+
+# Verify authentication status
+gh auth status
+```
 
 ### Session Start Protocol
 Every development session **MUST** start with:
 ```bash
 git status && git branch
+gh auth status  # Verify GitHub CLI authentication
 ```
-This ensures you know the current branch and working tree state before making any changes.
+This ensures you know the current branch, working tree state, and GitHub connection before making any changes.
 
 ### Jira-Based Branching Strategy
 
@@ -259,7 +276,7 @@ hotfix/[JIRA-ID]-[brief-description]
 - `feature/CORP-124-stock-chart`
 - `bugfix/CORP-125-login-validation`
 
-### Development Workflow
+### Development Workflow (GitHub CLI)
 
 **1. Start Working on Jira Ticket**:
 ```bash
@@ -271,6 +288,16 @@ git checkout -b feature/CORP-123-auth-system
 
 # Verify you're on the correct branch
 git branch
+
+# Optionally create GitHub issue linked to Jira ticket
+gh issue create --title "CORP-123: Implement authentication system" \
+  --body "Jira Ticket: CORP-123
+
+  Implement JWT-based authentication with:
+  - Login component
+  - Registration component
+  - AuthContext
+  - Axios interceptors"
 ```
 
 **2. Incremental Development**:
@@ -316,22 +343,56 @@ git commit -m "chore: checkpoint before auth refactoring
 🎫 CORP-123"
 ```
 
-**5. When Jira Ticket is Complete**:
+**5. Push and Create Pull Request**:
 ```bash
-# Final review of all changes
-git log --oneline feature/CORP-123-auth-system ^main
+# Push feature branch to remote
+git push -u origin feature/CORP-123-auth-system
 
-# Switch to main branch
+# Create Pull Request using GitHub CLI
+gh pr create --title "feat(auth): Implement JWT authentication system" \
+  --body "## Summary
+- Implemented Login component with form validation
+- Created authService with Axios interceptors
+- Set up AuthContext for global auth state
+- Added user registration flow
+
+## Jira Ticket
+🎫 CORP-123
+
+## Test Plan
+- [ ] Login form validation works correctly
+- [ ] JWT tokens are stored and refreshed properly
+- [ ] Registration flow completes successfully
+- [ ] Axios interceptors handle 401 errors
+
+## Screenshots
+[Add screenshots if applicable]" \
+  --assignee @me
+
+# Or use interactive mode
+gh pr create
+```
+
+**6. Review and Merge Pull Request**:
+```bash
+# View PR status
+gh pr status
+
+# View PR diff
+gh pr diff
+
+# Request review from team members
+gh pr review --approve
+
+# Merge PR after approval
+gh pr merge --squash --delete-branch
+
+# Or merge with merge commit
+gh pr merge --merge --delete-branch
+
+# Update local main branch
 git checkout main
-
-# Ensure main is up to date (if working with team)
 git pull origin main
-
-# Merge feature branch
-git merge feature/CORP-123-auth-system --no-ff
-
-# Delete feature branch after successful merge
-git branch -d feature/CORP-123-auth-system
 ```
 
 ### Commit Message Format
@@ -367,6 +428,75 @@ feat(stock): implement stock price chart with Recharts
 🎫 CORP-124
 ```
 
+### Useful GitHub CLI Commands
+
+**Pull Request Operations**:
+```bash
+# List all PRs
+gh pr list
+
+# View specific PR
+gh pr view 123
+
+# Checkout PR locally
+gh pr checkout 123
+
+# Review PR
+gh pr review 123 --approve
+gh pr review 123 --request-changes --body "Please fix..."
+
+# Close PR without merging
+gh pr close 123
+
+# Reopen PR
+gh pr reopen 123
+```
+
+**Issue Operations**:
+```bash
+# List issues
+gh issue list
+
+# Create issue
+gh issue create --title "Bug: Login fails" --body "Description..."
+
+# View issue
+gh issue view 456
+
+# Close issue
+gh issue close 456
+
+# Link issue to PR
+gh pr create --body "Fixes #456"
+```
+
+**Repository Operations**:
+```bash
+# View repository info
+gh repo view
+
+# Clone repository
+gh repo clone owner/repo
+
+# Fork repository
+gh repo fork
+
+# Browse repository in browser
+gh browse
+```
+
+**Workflow/Actions**:
+```bash
+# View workflow runs
+gh run list
+
+# View specific run
+gh run view 789
+
+# Watch run in real-time
+gh run watch 789
+```
+
 ### Git Safety Rules
 
 **NEVER**:
@@ -375,43 +505,37 @@ feat(stock): implement stock price chart with Recharts
 - ❌ Commit sensitive data (.env files, API keys)
 - ❌ Skip `git diff` review before committing
 - ❌ Use vague commit messages ("fix", "update", "changes")
+- ❌ Merge PRs without review (except solo projects)
 
 **ALWAYS**:
 - ✅ Create feature branches for all work
-- ✅ Run `git status && git branch` at session start
+- ✅ Run `git status && git branch && gh auth status` at session start
 - ✅ Review changes with `git diff` before staging
 - ✅ Write descriptive commit messages with Jira ticket ID
 - ✅ Commit incrementally (not giant commits)
 - ✅ Create restore points before risky operations
+- ✅ Use `gh pr create` for Pull Requests
+- ✅ Delete branches after merge using `--delete-branch` flag
 
 ### Branch Cleanup
 
-After successful merge, clean up local branches:
+After successful merge via GitHub CLI:
 ```bash
-# List all branches
-git branch -a
+# Branches are auto-deleted with --delete-branch flag
+gh pr merge --squash --delete-branch
 
-# Delete merged feature branch
-git branch -d feature/CORP-123-auth-system
-
-# Force delete unmerged branch (use with caution)
-git branch -D feature/CORP-999-abandoned-feature
-```
-
-### Working with Team (Future)
-
-When collaborating with team members:
-```bash
-# Push feature branch to remote
-git push -u origin feature/CORP-123-auth-system
-
-# Create Pull Request on GitHub/GitLab
-# After PR approval and merge, update local main
+# Update local repository
 git checkout main
 git pull origin main
 
-# Delete local feature branch
+# Verify local branches
+git branch -a
+
+# Manually delete local branch if needed
 git branch -d feature/CORP-123-auth-system
+
+# Prune remote-tracking branches
+git remote prune origin
 ```
 
 ### Recovery and Rollback
@@ -430,6 +554,38 @@ git restore .       # All files
 **View commit history**:
 ```bash
 git log --oneline --graph --all
+gh pr list --state all  # View all PR history
+```
+
+**Revert merged PR**:
+```bash
+# Find the PR number
+gh pr list --state merged
+
+# Create revert PR
+gh pr view 123 --json mergeCommit --jq .mergeCommit.oid | \
+  xargs -I {} git revert {} --no-commit
+git commit -m "revert: undo PR #123"
+gh pr create --title "revert: Undo PR #123"
+```
+
+### Working Solo vs Team
+
+**Solo Development** (Current):
+```bash
+# Simplified workflow - merge directly if needed
+git checkout main
+git merge feature/CORP-123-auth-system --no-ff
+git push origin main
+git branch -d feature/CORP-123-auth-system
+```
+
+**Team Collaboration** (Future):
+```bash
+# Always use PR workflow
+gh pr create
+# Wait for review
+gh pr merge --squash --delete-branch
 ```
 
 ## Testing Strategy (To Be Implemented)
