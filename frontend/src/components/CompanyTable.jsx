@@ -1,8 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import companyService from '../services/companyService';
 import './CompanyTable.css';
 
 function CompanyTable() {
+  const navigate = useNavigate();
+
   // 상태 관리
   const [companies, setCompanies] = useState([]);
   const [industries, setIndustries] = useState([]);
@@ -103,9 +106,8 @@ function CompanyTable() {
 
   // 행 클릭 핸들러 (상세 페이지 이동)
   const handleRowClick = (company) => {
-    // TODO: React Router 설정 후 활성화
     console.log('기업 상세 페이지 이동:', company.corp_name, company.corp_code);
-    // navigate(`/companies/${company.corp_code}`);
+    navigate(`/companies/${company.corp_code}`);
   };
 
   // 관심기업 등록/해제 핸들러
