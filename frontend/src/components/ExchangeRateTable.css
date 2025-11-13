@@ -99,10 +99,10 @@
 
 /* Table Header (Sticky) */
 .exchange-rate-table thead {
-  position: sticky;
+  /* position: sticky; */
   top: 0;
   z-index: 10;
-  background-color: var(--color-primary);
+  background-color: var(--primary-600);
   color: white;
 }
 

@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import economyService from '../services/economyService';
 import './ExchangeRateTable.css';
 
-function ExchangeRateTable() {
+function ExchangeRateTable({onRowClick}) {
   const [exchangeRates, setExchangeRates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
+  console.log('ExchangeRateTable: 부모로부터 onRowClick 함수를 받았나요?', onRowClick);
 
   // 환율 데이터 로드
   const loadExchangeRates = async () => {
@@ -33,13 +34,16 @@ function ExchangeRateTable() {
 
   // 새로고침 버튼 핸들러
   const handleRefresh = () => {
+    console.log('ExchangeRateTable: useEffect 실행! 데이터를 새로 불러옵니다.');
     loadExchangeRates();
   };
 
   // 행 클릭 핸들러
   const handleRowClick = (currency) => {
     setSelectedRow(currency.cur_unit);
-    console.log('Selected currency:', currency);
+    // console.log('Selected currency:', currency);
+    // console.log('ExchangeRateTable: 행이 클릭되었습니다. onRowClick을 호출합니다.',currency);
+    onRowClick(currency);
   };
 
   // 전일대비 아이콘 렌더링
@@ -103,8 +107,8 @@ function ExchangeRateTable() {
               <th>통화코드</th>
               <th>국가/통화명</th>
               <th>매매기준율</th>
-              <th>전신환(송금) 받을때</th>
-              <th>전신환(송금) 보낼때</th>
+              <th>전신환 받을때</th>
+              <th>전신환 보낼때</th>
               <th>전일대비</th>
             </tr>
           </thead>

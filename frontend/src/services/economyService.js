@@ -108,6 +108,59 @@ const economyService = {
       direction,
     };
   },
+
+  /**
+   * 과거 환율 데이터 조회 (차트용)
+   * @param {string} currencyCode - 통화 코드 (예: 'USD', 'JPY(100)')
+   * @param {number} days - 조회할 기간 (일)
+   * @returns {Promise<Array>} 차트 데이터 배열 [{ date: 'YYYY-MM-DD', rate: number }]
+   */
+  getHistoricalRates: async (currencyCode, days = 30) => {
+    try {
+      const chartData = [];
+      const today = new Date();
+
+      // 각 날짜별로 환율 데이터 조회
+      for (let i = days - 1; i >= 0; i--) {
+        const targetDate = new Date(today);
+        targetDate.setDate(today.getDate() - i);
+        const dateString = economyService.formatDate(targetDate);
+
+        try {
+          const response = await economyAPI.get(EXCHANGE_RATE_API_URL, {
+            params: {
+              authkey: API_KEY,
+              searchdate: dateString,
+              data: 'AP01',
+            },
+          });
+
+          // 해당 통화 코드의 환율 찾기
+          if (response.data && Array.isArray(response.data)) {
+            const currencyData = response.data.find(
+              (item) => item.cur_unit === currencyCode
+            );
+
+            if (currencyData && currencyData.deal_bas_r) {
+              chartData.push({
+                date: `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`,
+                rate: parseFloat(currencyData.deal_bas_r.replace(/,/g, '')),
+              });
+            }
+          }
+        } catch (error) {
+          // 특정 날짜의 데이터가 없어도 계속 진행
+          console.warn(`No data for ${dateString}:`, error.message);
+        }
+      }
+
+      return chartData;
+    } catch (error) {
+      console.error('Historical rates API error:', error);
+      throw error;
+    }
+  },
 };
 
 export default economyService;
+
