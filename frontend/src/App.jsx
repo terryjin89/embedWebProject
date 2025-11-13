@@ -4,10 +4,11 @@ import LoginForm from './components/LoginForm';
 import SignupForm from './components/SignupForm';
 import ExchangeRateTable from './components/ExchangeRateTable';
 import RateDetailChart from './components/RateDetailChart';
+import CompanyTable from './components/CompanyTable';
 import './App.css';
 
 function App() {
-  const [currentView, setCurrentView] = useState('exchange'); // 'login', 'signup', 'exchange', 'chart'
+  const [currentView, setCurrentView] = useState('exchange'); // 'login', 'signup', 'exchange', 'chart', 'companies'
   const [selectedCurrency, setSelectedCurrency] = useState(null);
 
   const handleCurrencySelect = (currency) => {
@@ -38,12 +39,19 @@ function App() {
           >
             환율정보
           </button>
+          <button
+            className={`toggle-btn ${currentView === 'companies' ? 'active' : ''}`}
+            onClick={() => setCurrentView('companies')}
+          >
+            기업정보
+          </button>
         </div>
 
         {currentView === 'login' && <LoginForm />}
         {currentView === 'signup' && <SignupForm />}
         {currentView === 'exchange' && <ExchangeRateTable onRowClick={handleCurrencySelect}/>}
         {currentView === 'chart' && <RateDetailChart currencyCode={selectedCurrency.cur_unit} currencyName={selectedCurrency.cur_nm} />}
+        {currentView === 'companies' && <CompanyTable />}
       </div>
     </AuthProvider>
   );

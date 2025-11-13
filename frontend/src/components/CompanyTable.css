@@ -1,0 +1,433 @@
+@import '../styles/variables.css';
+
+/* Company Table Container */
+.company-table-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+/* Table Header */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background-color: var(--color-background-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.table-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.last-updated {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Refresh Button */
+.btn-refresh {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-refresh:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-refresh:active {
+  transform: translateY(0);
+}
+
+.refresh-icon {
+  font-size: var(--font-size-lg);
+  animation: rotate 0.5s ease-in-out;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.btn-refresh:hover .refresh-icon {
+  animation: rotate 0.5s ease-in-out infinite;
+}
+
+/* Table Controls (검색 및 필터) */
+.table-controls {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+/* Search Box */
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 300px;
+}
+
+.search-input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-xl) var(--spacing-sm) var(--spacing-md);
+  border: 2px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  right: var(--spacing-md);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+
+/* Industry Filter */
+.industry-filter {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 2px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 180px;
+}
+
+.industry-filter:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.industry-filter:hover {
+  border-color: var(--color-primary);
+}
+
+/* Table Wrapper */
+.table-wrapper {
+  overflow-x: auto;
+  background-color: var(--color-background-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Company Table */
+.company-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+/* Table Header (Sticky) */
+.company-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--primary-600);
+  color: white;
+}
+
+.company-table th {
+  padding: var(--spacing-md);
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  border-bottom: 2px solid var(--color-primary-dark);
+  white-space: nowrap;
+}
+
+/* Table Body */
+.company-table tbody tr {
+  border-bottom: 1px solid var(--color-border-light);
+  transition: all 0.2s ease;
+}
+
+/* Row Styles */
+.table-row {
+  cursor: pointer;
+}
+
+.table-row:hover {
+  background-color: var(--color-background-hover);
+  transform: scale(1.005);
+}
+
+.table-row.even {
+  background-color: var(--color-background-primary);
+}
+
+.table-row.odd {
+  background-color: var(--color-background-secondary);
+}
+
+/* Table Cells */
+.company-table td {
+  padding: var(--spacing-md);
+  color: var(--color-text-primary);
+}
+
+.company-name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.stock-name,
+.stock-code {
+  font-family: 'Courier New', monospace;
+}
+
+.ceo-name,
+.industry-code {
+  color: var(--color-text-secondary);
+}
+
+.est-date {
+  font-family: 'Courier New', monospace;
+  color: var(--color-text-secondary);
+}
+
+/* Favorite Cell & Button */
+.favorite-cell {
+  text-align: center;
+  width: 80px;
+}
+
+.btn-favorite {
+  background: none;
+  border: none;
+  font-size: var(--font-size-xl);
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  transition: all 0.2s ease;
+  filter: grayscale(100%);
+  opacity: 0.3;
+}
+
+.btn-favorite:hover {
+  transform: scale(1.2);
+  opacity: 0.7;
+}
+
+.btn-favorite.active {
+  filter: grayscale(0%);
+  opacity: 1;
+  animation: pulse 0.3s ease;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+}
+
+.pagination-btn {
+  min-width: 40px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: white;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: var(--color-background-hover);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.pagination-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  background-color: var(--color-background-secondary);
+}
+
+.pagination-btn.active {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Loading & Error States */
+.loading-message,
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-text-secondary);
+  min-height: 400px;
+}
+
+.error-message p {
+  color: var(--color-danger);
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-lg);
+}
+
+.no-data {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-md);
+}
+
+/* Table Footer */
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-background-secondary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.data-count {
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.data-source {
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .company-table {
+    font-size: var(--font-size-xs);
+  }
+
+  .company-table th,
+  .company-table td {
+    padding: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 768px) {
+  .company-table-container {
+    padding: var(--spacing-md);
+  }
+
+  .table-header {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+  }
+
+  .table-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .table-controls {
+    flex-direction: column;
+  }
+
+  .search-box {
+    min-width: 100%;
+  }
+
+  .industry-filter {
+    width: 100%;
+  }
+
+  /* 모바일에서 테이블 스크롤 */
+  .table-wrapper {
+    overflow-x: scroll;
+  }
+
+  .company-table {
+    min-width: 800px;
+  }
+
+  .table-footer {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    text-align: center;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+  }
+
+  .pagination-btn {
+    min-width: 35px;
+    padding: var(--spacing-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .table-title {
+    font-size: var(--font-size-lg);
+  }
+
+  .btn-refresh {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pagination-btn {
+    min-width: 30px;
+    font-size: var(--font-size-xs);
+  }
+}
