@@ -1,0 +1,269 @@
+@import '../styles/variables.css';
+
+/* Exchange Rate Container */
+.exchange-rate-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+/* Table Header */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background-color: var(--color-background-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.table-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.last-updated {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Refresh Button */
+.btn-refresh {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-refresh:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-refresh:active {
+  transform: translateY(0);
+}
+
+.refresh-icon {
+  font-size: var(--font-size-lg);
+  animation: rotate 0.5s ease-in-out;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.btn-refresh:hover .refresh-icon {
+  animation: rotate 0.5s ease-in-out infinite;
+}
+
+/* Table Wrapper */
+.table-wrapper {
+  overflow-x: auto;
+  background-color: var(--color-background-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Exchange Rate Table */
+.exchange-rate-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+/* Table Header (Sticky) */
+.exchange-rate-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.exchange-rate-table th {
+  padding: var(--spacing-md);
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  border-bottom: 2px solid var(--color-primary-dark);
+}
+
+/* Table Body */
+.exchange-rate-table tbody tr {
+  border-bottom: 1px solid var(--color-border-light);
+  transition: all 0.2s ease;
+}
+
+/* Row Styles */
+.table-row:hover {
+  background-color: var(--color-background-hover);
+  cursor: pointer;
+  transform: scale(1.01);
+}
+
+.table-row.selected {
+  background-color: var(--color-primary-light);
+}
+
+.table-row.even {
+  background-color: var(--color-background-primary);
+}
+
+.table-row.odd {
+  background-color: var(--color-background-secondary);
+}
+
+/* Table Cells */
+.exchange-rate-table td {
+  padding: var(--spacing-md);
+  color: var(--color-text-primary);
+}
+
+.currency-code {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.currency-name {
+  color: var(--color-text-secondary);
+}
+
+.rate-value {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+  font-weight: var(--font-weight-medium);
+}
+
+.rate-change {
+  text-align: center;
+}
+
+/* Change Indicators */
+.change-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.change-up {
+  color: var(--color-success);
+}
+
+.change-up::before {
+  content: '▲';
+}
+
+.change-down {
+  color: var(--color-danger);
+}
+
+.change-down::before {
+  content: '▼';
+}
+
+.change-neutral {
+  color: var(--color-text-secondary);
+}
+
+/* Loading & Error States */
+.loading-message,
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-text-secondary);
+  min-height: 300px;
+}
+
+.error-message p {
+  color: var(--color-danger);
+  margin-bottom: var(--spacing-md);
+}
+
+.no-data {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--color-text-secondary);
+}
+
+/* Table Footer */
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-background-secondary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.data-count {
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.data-source {
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .exchange-rate-container {
+    padding: var(--spacing-md);
+  }
+
+  .table-header {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+  }
+
+  .table-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .exchange-rate-table {
+    font-size: var(--font-size-xs);
+  }
+
+  .exchange-rate-table th,
+  .exchange-rate-table td {
+    padding: var(--spacing-sm);
+  }
+
+  .table-footer {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    text-align: center;
+  }
+}
