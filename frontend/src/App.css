@@ -3,6 +3,7 @@
 /* App Container */
 .app {
   min-height: 100vh;
+  padding-top: 80px;
   background-color: var(--color-background-secondary);
 }
 

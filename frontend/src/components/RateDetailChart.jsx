@@ -174,6 +174,7 @@ function RateDetailChart({ currencyCode, currencyName }) {
                 stroke="#666"
                 style={{ fontSize: '12px' }}
                 tickFormatter={(value) => value.toLocaleString('ko-KR')}
+                domain={[(dataMin) => Math.floor(dataMin * 0.99), (dataMax) => Math.ceil(dataMax * 1.01)]}
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend
