@@ -1,9 +1,16 @@
 import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import './LoginForm.css';
 
 function LoginForm() {
   const { login } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // ProtectedRoute에서 전달된 리다이렉트 정보
+  const redirectMessage = location.state?.message;
+  const redirectFrom = location.state?.from || '/';
 
   const [formData, setFormData] = useState({
     email: '',
@@ -104,8 +111,8 @@ function LoginForm() {
         const result = await login(formData.email, formData.password);
 
         if (result.success) {
-          alert('로그인 성공! (Mock 데이터)');
-          // TODO: SCRUM-15에서 실제 페이지 리다이렉션 구현
+          // 로그인 성공 시 원래 페이지로 리다이렉트
+          navigate(redirectFrom, { replace: true });
         } else {
           setErrors((prev) => ({
             ...prev,
@@ -131,6 +138,14 @@ function LoginForm() {
           <h1 className="login-title">로그인</h1>
           <p className="login-subtitle">기업분석 플랫폼에 오신 것을 환영합니다</p>
         </div>
+
+        {/* 리다이렉트 메시지 표시 */}
+        {redirectMessage && (
+          <div className="redirect-message">
+            <span className="message-icon">ℹ️</span>
+            <span className="message-text">{redirectMessage}</span>
+          </div>
+        )}
 
         <form className="login-form" onSubmit={handleSubmit} noValidate>
           {/* 이메일 입력 */}
