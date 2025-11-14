@@ -62,3 +62,10 @@ cors:
   allowed-methods: GET,POST,PUT,DELETE,OPTIONS
   allowed-headers: '*'
   allow-credentials: true
+
+# Exchange Rate API Configuration (한국수출입은행 환율 API)
+exchange:
+  api:
+    url: https://oapi.koreaexim.go.kr/site/program/financial/exchangeJSON
+    authkey: ${EXCHANGE_API_KEY:DvYPnli3e0IjaMMxPsqthtkwFfkWt9IW}
+    mock-mode: ${EXCHANGE_MOCK_MODE:true}  # true: 목업 데이터 사용, false: 실제 API 호출
