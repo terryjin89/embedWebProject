@@ -7,6 +7,7 @@ import ExchangeRateTable from './components/ExchangeRateTable';
 import RateDetailChart from './components/RateDetailChart';
 import CompanyTable from './components/CompanyTable';
 import CompanyDetailPage from './pages/CompanyDetailPage';
+import FavoritesPage from './pages/FavoritesPage';
 import './App.css';
 
 function App() {
@@ -26,6 +27,9 @@ function App() {
           <Routes>
             {/* 기업 상세 페이지 라우트 */}
             <Route path="/companies/:corpCode" element={<CompanyDetailPage />} />
+
+            {/* 관심기업 페이지 라우트 */}
+            <Route path="/favorites" element={<FavoritesPage />} />
 
             {/* 메인 페이지 라우트 */}
             <Route path="/" element={
@@ -54,6 +58,12 @@ function App() {
                     onClick={() => setCurrentView('companies')}
                   >
                     기업정보
+                  </button>
+                  <button
+                    className="toggle-btn"
+                    onClick={() => window.location.href = '/favorites'}
+                  >
+                    관심기업
                   </button>
                 </div>
 

@@ -13,6 +13,17 @@ frontend/.vite/
 frontend/coverage/
 frontend/.cache/
 
+# Root Node Modules (for Playwright)
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
 # Backend (Spring Boot + Gradle)
 backend/target/
 backend/.gradle/
