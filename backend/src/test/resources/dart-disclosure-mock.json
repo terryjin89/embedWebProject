@@ -1,0 +1,65 @@
+{
+  "status": "000",
+  "message": "정상",
+  "page_no": 1,
+  "page_count": 5,
+  "total_count": 284,
+  "total_page": 57,
+  "list": [
+    {
+      "corp_code": "00126380",
+      "corp_name": "삼성전자",
+      "stock_code": "005930",
+      "corp_cls": "Y",
+      "report_nm": "임원ㆍ주요주주특정증권등소유상황보고서",
+      "rcept_no": "20241223000116",
+      "flr_nm": "김상하",
+      "rcept_dt": "20241223",
+      "rm": ""
+    },
+    {
+      "corp_code": "00126380",
+      "corp_name": "삼성전자",
+      "stock_code": "005930",
+      "corp_cls": "Y",
+      "report_nm": "[기재정정]기타경영사항(자율공시)",
+      "rcept_no": "20241223800004",
+      "flr_nm": "삼성전자",
+      "rcept_dt": "20241223",
+      "rm": "유"
+    },
+    {
+      "corp_code": "00126380",
+      "corp_name": "삼성전자",
+      "stock_code": "005930",
+      "corp_cls": "Y",
+      "report_nm": "주식등의대량보유상황보고서(일반)",
+      "rcept_no": "20241220000709",
+      "flr_nm": "삼성물산",
+      "rcept_dt": "20241220",
+      "rm": ""
+    },
+    {
+      "corp_code": "00126380",
+      "corp_name": "삼성전자",
+      "stock_code": "005930",
+      "corp_cls": "Y",
+      "report_nm": "임원ㆍ주요주주특정증권등소유상황보고서",
+      "rcept_no": "20241219000121",
+      "flr_nm": "홍준화",
+      "rcept_dt": "20241219",
+      "rm": ""
+    },
+    {
+      "corp_code": "00126380",
+      "corp_name": "삼성전자",
+      "stock_code": "005930",
+      "corp_cls": "Y",
+      "report_nm": "임원ㆍ주요주주특정증권등소유상황보고서",
+      "rcept_no": "20241217000409",
+      "flr_nm": "송기재",
+      "rcept_dt": "20241217",
+      "rm": ""
+    }
+  ]
+}
