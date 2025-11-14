@@ -13,6 +13,74 @@ import { test, expect } from '@playwright/test';
 
 test.describe('관심기업 테이블 컴포넌트', () => {
   test.beforeEach(async ({ page }) => {
+    // Mock 인증 설정 (localStorage에 토큰과 사용자 정보 저장)
+    await page.addInitScript(() => {
+      const mockToken = 'mock_jwt_token_for_testing';
+      const mockUser = JSON.stringify({
+        id: 1,
+        email: 'test@example.com',
+        name: 'test',
+      });
+
+      localStorage.setItem('authToken', mockToken);
+      localStorage.setItem('user', mockUser);
+    });
+
+    // Mock API 응답 설정 (관심기업 목록 API)
+    await page.route('**/api/favorites', async (route) => {
+      // Mock 관심기업 데이터 반환
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 1,
+            stockCode: '005930',
+            corpCode: '00126380',
+            companyName: '삼성전자(주)',
+            stockName: '삼성전자',
+            registeredAt: '2024-11-01T10:30:00',
+          },
+          {
+            id: 2,
+            stockCode: '000660',
+            corpCode: '00164779',
+            companyName: 'SK하이닉스(주)',
+            stockName: 'SK하이닉스',
+            registeredAt: '2024-11-03T14:20:00',
+          },
+        ]),
+      });
+    });
+
+    // Mock 금융위원회 주식시세정보 API
+    await page.route('**/apis.data.go.kr/**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          response: {
+            header: { resultCode: '00', resultMsg: 'NORMAL SERVICE.' },
+            body: {
+              numOfRows: 1,
+              pageNo: 1,
+              totalCount: 1,
+              items: {
+                item: {
+                  basDt: '20241114',
+                  srtnCd: '005930',
+                  itmsNm: '삼성전자',
+                  clpr: '71500',
+                  vs: '1200',
+                  fltRt: '1.71',
+                },
+              },
+            },
+          },
+        }),
+      });
+    });
+
     // 관심기업 페이지로 이동
     await page.goto('/favorites');
   });
@@ -40,8 +108,11 @@ test.describe('관심기업 테이블 컴포넌트', () => {
   });
 
   test('관심기업 데이터가 표시된다 (목업 데이터)', async ({ page }) => {
+    // 테이블 행이 나타날 때까지 대기
+    await page.waitForSelector('.favorite-table tbody tr.table-row', { timeout: 10000 });
+
     // 테이블 행이 존재하는지 확인
-    const tableRows = page.locator('.favorite-table tbody tr');
+    const tableRows = page.locator('.favorite-table tbody tr.table-row');
     const rowCount = await tableRows.count();
 
     // 목업 데이터가 있는지 확인 (최소 1개 이상)
@@ -256,7 +327,10 @@ test.describe('관심기업 테이블 컴포넌트', () => {
   });
 
   test('페이지 푸터가 표시된다', async ({ page }) => {
-    // 데이터 소스 정보 확인
+    // 데이터가 로드될 때까지 대기
+    await page.waitForSelector('.favorite-table tbody tr.table-row', { timeout: 10000 });
+
+    // 데이터 소스 정보 확인 (favorites.length > 0일 때만 표시됨)
     await expect(page.locator('.data-source')).toBeVisible();
     await expect(page.locator('.data-source')).toContainText('금융위원회');
   });
