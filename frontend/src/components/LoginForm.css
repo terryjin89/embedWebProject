@@ -38,6 +38,30 @@
   margin: 0;
 }
 
+/* Redirect Message */
+.redirect-message {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background-color: rgba(33, 150, 243, 0.1);
+  border-left: 4px solid var(--primary-600);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.message-icon {
+  font-size: var(--font-size-lg);
+  flex-shrink: 0;
+}
+
+.message-text {
+  font-size: var(--font-size-sm);
+  color: var(--primary-700);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-relaxed);
+}
+
 /* Login Form */
 .login-form {
   display: flex;

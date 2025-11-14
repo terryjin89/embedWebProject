@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import LoginForm from './components/LoginForm';
 import SignupForm from './components/SignupForm';
 import ExchangeRateTable from './components/ExchangeRateTable';
@@ -25,11 +26,24 @@ function App() {
       <BrowserRouter>
         <div className="app">
           <Routes>
+            {/* 로그인 페이지 라우트 */}
+            <Route path="/login" element={<LoginForm />} />
+
+            {/* 회원가입 페이지 라우트 */}
+            <Route path="/signup" element={<SignupForm />} />
+
             {/* 기업 상세 페이지 라우트 */}
             <Route path="/companies/:corpCode" element={<CompanyDetailPage />} />
 
-            {/* 관심기업 페이지 라우트 */}
-            <Route path="/favorites" element={<FavoritesPage />} />
+            {/* 관심기업 페이지 라우트 (인증 필요) */}
+            <Route
+              path="/favorites"
+              element={
+                <ProtectedRoute>
+                  <FavoritesPage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* 메인 페이지 라우트 */}
             <Route path="/" element={
