@@ -47,18 +47,21 @@ function NewsSearch({ onSearchResults, onLoading, onError }) {
       const company = searchQuery.trim();
       const hashtag = selectedHashtag ? `#${selectedHashtag}` : '';
 
-      // 뉴스 검색
-      const results = await newsService.searchNews({
+      // 검색 파라미터
+      const searchParams = {
         company,
         hashtag,
         page: 1,
         size: 10,
         sort: sortOrder,
-      });
+      };
 
-      // 검색 결과 전달
+      // 뉴스 검색
+      const results = await newsService.searchNews(searchParams);
+
+      // 검색 결과 및 파라미터 전달
       if (onSearchResults) {
-        onSearchResults(results);
+        onSearchResults(results, searchParams);
       }
 
       // 에러 초기화
