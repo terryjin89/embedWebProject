@@ -76,3 +76,9 @@ dart:
     url: https://opendart.fss.or.kr/api
     key: ${DART_API_KEY:d76b2823154aff2001264dd25f0cc7bf256c6c7b}
     mock-mode: ${DART_MOCK_MODE:true}  # true: 목업 데이터 사용, false: 실제 API 호출
+
+# Finance API Configuration (금융위원회 주식시세정보 API)
+finance:
+  api:
+    url: https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo
+    serviceKey: ${FINANCE_API_KEY:8676c1c0ad9eda160d90d5927a4dc21aace7f18de90365e4c993f72a66ce66b7}
