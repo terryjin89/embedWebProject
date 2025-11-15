@@ -2,6 +2,7 @@ package com.project.companyanalyzer.repository;
 
 import com.project.companyanalyzer.entity.Stock;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -84,6 +85,7 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
      * @param stockCode 주식 종목코드
      * @return 삭제된 행의 수 (0 or 1)
      */
+    @Modifying
     @Query("DELETE FROM Stock s " +
            "WHERE s.member.userCode = :userCode AND s.stockCode = :stockCode")
     int deleteByUserCodeAndStockCode(
