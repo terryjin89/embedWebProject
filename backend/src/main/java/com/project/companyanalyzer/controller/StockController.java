@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @Tag(name = "주가 API", description = "주가 정보 조회 API")
 @RestController
-@RequestMapping("/api/stocks")
+@RequestMapping("/stocks")
 @RequiredArgsConstructor
 public class StockController {
 

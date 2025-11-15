@@ -68,6 +68,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html",     // Swagger UI HTML
                                 "/v3/api-docs/**",      // OpenAPI 3.0 문서
                                 "/auth/**",             // 인증 관련 API (로그인, 회원가입)
+                                "/stocks/**",           // 주가 API (공개)
                                 "/health"               // 헬스 체크
                         ).permitAll()
 
