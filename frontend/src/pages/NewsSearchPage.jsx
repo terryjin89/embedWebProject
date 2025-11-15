@@ -1,17 +1,24 @@
 import { useState } from 'react';
 import NewsSearch from '../components/NewsSearch';
+import NewsList from '../components/NewsList';
+import newsService from '../services/newsService';
 import './NewsSearchPage.css';
 
 function NewsSearchPage() {
   const [newsResults, setNewsResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams, setSearchParams] = useState(null);
 
   /**
    * 검색 결과 핸들러
    */
-  const handleSearchResults = (results) => {
+  const handleSearchResults = (results, params) => {
     setNewsResults(results);
+    setSearchParams(params);
+    setCurrentPage(1);
   };
 
   /**
@@ -64,6 +71,40 @@ function NewsSearchPage() {
     return div.textContent || div.innerText || '';
   };
 
+  /**
+   * 더보기 버튼 핸들러
+   */
+  const handleLoadMore = async () => {
+    if (!searchParams || isLoadingMore) return;
+
+    setIsLoadingMore(true);
+    try {
+      const nextPage = currentPage + 1;
+
+      const moreResults = await newsService.searchNews({
+        ...searchParams,
+        page: nextPage,
+      });
+
+      // 기존 결과에 새 결과 추가
+      setNewsResults((prev) => ({
+        ...moreResults,
+        items: [...prev.items, ...moreResults.items],
+      }));
+      setCurrentPage(nextPage);
+    } catch (error) {
+      console.error('더보기 실패:', error);
+      setError('뉴스를 불러오는데 실패했습니다.');
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  /**
+   * 더보기 가능 여부 확인
+   */
+  const hasMore = newsResults && newsResults.items && newsResults.items.length < (newsResults.total || 1000);
+
   return (
     <div className="news-search-page">
       <div className="news-search-page__container">
@@ -100,47 +141,14 @@ function NewsSearchPage() {
 
         {/* 검색 결과 */}
         {!isLoading && newsResults && (
-          <div className="news-search-page__results">
-            <div className="results-header">
-              <h2 className="results-title">
-                검색 결과 ({newsResults.total || newsResults.display}건)
-              </h2>
-            </div>
-
-            {newsResults.items && newsResults.items.length > 0 ? (
-              <div className="news-list">
-                {newsResults.items.map((news, index) => (
-                  <article key={index} className="news-card">
-                    <a
-                      href={news.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="news-card__link"
-                    >
-                      <h3
-                        className="news-card__title"
-                        dangerouslySetInnerHTML={{ __html: news.title }}
-                      ></h3>
-                      <p className="news-card__description">
-                        {stripHtmlTags(news.description)}
-                      </p>
-                      <div className="news-card__meta">
-                        <span className="news-card__date">
-                          {formatDate(news.pubDate)}
-                        </span>
-                        <span className="news-card__arrow">→</span>
-                      </div>
-                    </a>
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <div className="news-search-page__empty">
-                <span className="empty-icon">📰</span>
-                <p>검색 결과가 없습니다</p>
-              </div>
-            )}
-          </div>
+          <NewsList
+            newsResults={newsResults}
+            onFormatDate={formatDate}
+            onStripHtml={stripHtmlTags}
+            onLoadMore={handleLoadMore}
+            hasMore={hasMore}
+            isLoadingMore={isLoadingMore}
+          />
         )}
 
         {/* 검색 전 안내 */}
