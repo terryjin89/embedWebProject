@@ -1,0 +1,176 @@
+@import '../styles/variables.css';
+
+/* News Search Container */
+.news-search {
+  width: 100%;
+  margin-bottom: var(--spacing-xl);
+}
+
+.news-search__container {
+  background-color: var(--color-background-primary);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Search Input Group */
+.news-search__input-group {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.news-search__input {
+  flex: 1;
+  padding: var(--spacing-md);
+  font-size: var(--font-size-md);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.news-search__input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.news-search__input:disabled {
+  background-color: var(--color-background-disabled);
+  cursor: not-allowed;
+}
+
+.news-search__input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.news-search__button {
+  padding: var(--spacing-md) var(--spacing-xl);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.news-search__button:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.news-search__button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.news-search__button:disabled {
+  background-color: var(--color-background-disabled);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+/* Hashtags Group */
+.news-search__hashtags {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.news-search__hashtags-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  margin-right: var(--spacing-xs);
+}
+
+.news-search__hashtag {
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.news-search__hashtag:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+  transform: translateY(-1px);
+}
+
+.news-search__hashtag.active {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.news-search__hashtag:disabled {
+  background-color: var(--color-background-disabled);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  border-color: var(--color-border);
+}
+
+/* Sort Dropdown */
+.news-search__sort {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.news-search__sort-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.news-search__sort-select {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.news-search__sort-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.news-search__sort-select:disabled {
+  background-color: var(--color-background-disabled);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .news-search__input-group {
+    flex-direction: column;
+  }
+
+  .news-search__button {
+    width: 100%;
+  }
+
+  .news-search__hashtags {
+    justify-content: center;
+  }
+
+  .news-search__sort {
+    justify-content: center;
+  }
+}

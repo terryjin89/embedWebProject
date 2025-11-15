@@ -10,6 +10,7 @@ import CompanyTable from './components/CompanyTable';
 import CompanyDetailPage from './pages/CompanyDetailPage';
 import FavoritesPage from './pages/FavoritesPage';
 import StockChartTestPage from './pages/StockChartTestPage';
+import NewsSearchPage from './pages/NewsSearchPage';
 import './App.css';
 
 function App() {
@@ -49,6 +50,9 @@ function App() {
             {/* 주가 차트 테스트 페이지 라우트 */}
             <Route path="/stock-chart-test" element={<StockChartTestPage />} />
 
+            {/* 뉴스 검색 페이지 라우트 */}
+            <Route path="/news" element={<NewsSearchPage />} />
+
             {/* 메인 페이지 라우트 */}
             <Route path="/" element={
               <>
@@ -82,6 +86,12 @@ function App() {
                     onClick={() => window.location.href = '/favorites'}
                   >
                     관심기업
+                  </button>
+                  <button
+                    className="toggle-btn"
+                    onClick={() => window.location.href = '/news'}
+                  >
+                    뉴스검색
                   </button>
                 </div>
 
