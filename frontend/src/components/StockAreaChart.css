@@ -1,0 +1,115 @@
+/* Stock Area Chart Container */
+.stock-area-chart {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom Tooltip */
+.stock-tooltip {
+  padding: 12px 16px;
+  background-color: rgba(0, 0, 0, 0.85);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tooltip-date {
+  font-size: 12px;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 4px;
+}
+
+.tooltip-price {
+  font-size: 14px;
+  color: #ffffff;
+  margin: 4px 0;
+  font-weight: 600;
+}
+
+.tooltip-price span {
+  color: #1890ff;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.tooltip-change {
+  font-size: 13px;
+  color: #d9d9d9;
+  margin: 4px 0;
+}
+
+.tooltip-volume {
+  font-size: 13px;
+  color: #d9d9d9;
+  margin: 4px 0;
+}
+
+/* Loading & Error States */
+.loading-message,
+.error-message,
+.no-data {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  font-size: 16px;
+  color: #8c8c8c;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.error-message {
+  flex-direction: column;
+  gap: 16px;
+}
+
+.error-message p {
+  color: #ff4d4f;
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .stock-area-chart {
+    padding: 12px;
+  }
+
+  .tooltip-date {
+    font-size: 11px;
+  }
+
+  .tooltip-price {
+    font-size: 12px;
+  }
+
+  .tooltip-change,
+  .tooltip-volume {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stock-area-chart {
+    padding: 8px;
+  }
+
+  .stock-tooltip {
+    padding: 8px 12px;
+  }
+
+  .loading-message,
+  .error-message,
+  .no-data {
+    min-height: 300px;
+    font-size: 14px;
+  }
+}

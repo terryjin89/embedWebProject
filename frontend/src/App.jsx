@@ -9,6 +9,7 @@ import RateDetailChart from './components/RateDetailChart';
 import CompanyTable from './components/CompanyTable';
 import CompanyDetailPage from './pages/CompanyDetailPage';
 import FavoritesPage from './pages/FavoritesPage';
+import StockChartTestPage from './pages/StockChartTestPage';
 import './App.css';
 
 function App() {
@@ -44,6 +45,9 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* 주가 차트 테스트 페이지 라우트 */}
+            <Route path="/stock-chart-test" element={<StockChartTestPage />} />
 
             {/* 메인 페이지 라우트 */}
             <Route path="/" element={
