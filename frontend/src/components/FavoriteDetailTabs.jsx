@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import DisclosureTable from './DisclosureTable';
 import StockAreaChart from './StockAreaChart';
+import NewsList from './NewsList';
+import newsService from '../services/newsService';
 import './FavoriteDetailTabs.css';
 
 /**
@@ -24,6 +26,10 @@ function FavoriteDetailTabs() {
 
   // 주가 차트 기간 상태 관리
   const [chartPeriod, setChartPeriod] = useState(30);
+
+  // 뉴스 데이터 상태 관리
+  const [newsResults, setNewsResults] = useState(null);
+  const [newsLoading, setNewsLoading] = useState(false);
 
   // stockCode를 corpCode로 변환하는 매핑 테이블
   const stockToCorpCodeMap = {
@@ -137,6 +143,48 @@ function FavoriteDetailTabs() {
     // 실제 구현 시: 새로운 기간으로 API 호출
   };
 
+  // 뉴스 탭 활성화 시 뉴스 데이터 로딩
+  useEffect(() => {
+    if (activeTab === 'news' && !newsResults) {
+      loadNewsData();
+    }
+  }, [activeTab]);
+
+  // 뉴스 데이터 로딩 함수
+  const loadNewsData = async () => {
+    setNewsLoading(true);
+    try {
+      const data = await newsService.searchNews({
+        company: dummyStockData.companyName,
+        hashtag: '', // 백엔드 구현 전까지 빈 문자열 사용
+        page: 1,
+        size: 10,
+        sort: 'date', // 최신순
+      });
+      setNewsResults(data);
+    } catch (error) {
+      console.error('뉴스 데이터 로딩 실패:', error);
+    } finally {
+      setNewsLoading(false);
+    }
+  };
+
+  // 유틸리티 함수: 날짜 포맷팅
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+  };
+
+  // 유틸리티 함수: HTML 태그 제거
+  const stripHtml = (html) => {
+    const tmp = document.createElement('DIV');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
   // 탭 콘텐츠 렌더링
   const renderTabContent = () => {
     switch (activeTab) {
@@ -161,14 +209,18 @@ function FavoriteDetailTabs() {
       case 'news':
         return (
           <div className="tab-content">
-            <div className="content-placeholder">
-              <p className="placeholder-icon">📰</p>
-              <h3>관련기사</h3>
-              <p>기업 관련 뉴스 기사가 여기에 표시됩니다.</p>
-              <p className="placeholder-hint">
-                (NewsCardList 컴포넌트 연동 예정)
-              </p>
-            </div>
+            {newsLoading ? (
+              <div className="loading-spinner">
+                <div className="spinner"></div>
+                <p>뉴스를 불러오는 중...</p>
+              </div>
+            ) : (
+              <NewsList
+                newsResults={newsResults}
+                onFormatDate={formatDate}
+                onStripHtml={stripHtml}
+              />
+            )}
           </div>
         );
 
