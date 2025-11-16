@@ -25,7 +25,9 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(git checkout:*)",
-      "mcp__playwright__*"
+      "mcp__playwright__*",
+      "Bash(docker exec:*)",
+      "Bash(docker-compose up:*)"
     ],
     "deny": [],
     "ask": []
