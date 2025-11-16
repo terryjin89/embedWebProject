@@ -9,6 +9,7 @@ import RateDetailChart from './components/RateDetailChart';
 import CompanyTable from './components/CompanyTable';
 import CompanyDetailPage from './pages/CompanyDetailPage';
 import FavoritesPage from './pages/FavoritesPage';
+import FavoriteDetailPage from './pages/FavoriteDetailPage';
 import StockChartTestPage from './pages/StockChartTestPage';
 import NewsSearchPage from './pages/NewsSearchPage';
 import './App.css';
@@ -43,6 +44,16 @@ function App() {
               element={
                 <ProtectedRoute>
                   <FavoritesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* 관심기업 상세 페이지 라우트 (인증 필요) */}
+            <Route
+              path="/favorites/:stockCode"
+              element={
+                <ProtectedRoute>
+                  <FavoriteDetailPage />
                 </ProtectedRoute>
               }
             />
