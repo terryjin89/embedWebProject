@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import DisclosureTable from './DisclosureTable';
 import StockAreaChart from './StockAreaChart';
 import NewsList from './NewsList';
+import MemoEditor from './MemoEditor';
 import newsService from '../services/newsService';
 import './FavoriteDetailTabs.css';
 
@@ -30,6 +31,9 @@ function FavoriteDetailTabs() {
   // 뉴스 데이터 상태 관리
   const [newsResults, setNewsResults] = useState(null);
   const [newsLoading, setNewsLoading] = useState(false);
+
+  // 토스트 메시지 상태 관리
+  const [toast, setToast] = useState(null);
 
   // stockCode를 corpCode로 변환하는 매핑 테이블
   const stockToCorpCodeMap = {
@@ -185,6 +189,26 @@ function FavoriteDetailTabs() {
     return tmp.textContent || tmp.innerText || '';
   };
 
+  // 토스트 메시지 표시 핸들러
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+
+    // 3초 후 자동으로 토스트 제거
+    setTimeout(() => {
+      setToast(null);
+    }, 3000);
+  };
+
+  // 메모 저장 성공 핸들러
+  const handleMemoSaveSuccess = (message) => {
+    showToast(message, 'success');
+  };
+
+  // 메모 저장 실패 핸들러
+  const handleMemoSaveError = (message) => {
+    showToast(message, 'error');
+  };
+
   // 탭 콘텐츠 렌더링
   const renderTabContent = () => {
     switch (activeTab) {
@@ -227,14 +251,11 @@ function FavoriteDetailTabs() {
       case 'memo':
         return (
           <div className="tab-content">
-            <div className="content-placeholder">
-              <p className="placeholder-icon">📝</p>
-              <h3>메모</h3>
-              <p>사용자 메모가 여기에 표시됩니다.</p>
-              <p className="placeholder-hint">
-                (메모 작성/수정 기능 구현 예정)
-              </p>
-            </div>
+            <MemoEditor
+              stockCode={stockCode}
+              onSaveSuccess={handleMemoSaveSuccess}
+              onSaveError={handleMemoSaveError}
+            />
           </div>
         );
 
@@ -286,6 +307,16 @@ function FavoriteDetailTabs() {
       <main className="tabs-content">
         {renderTabContent()}
       </main>
+
+      {/* 토스트 메시지 */}
+      {toast && (
+        <div className={`toast toast--${toast.type}`}>
+          <span className="toast__icon">
+            {toast.type === 'success' ? '✓' : '✗'}
+          </span>
+          <span className="toast__message">{toast.message}</span>
+        </div>
+      )}
     </div>
   );
 }
