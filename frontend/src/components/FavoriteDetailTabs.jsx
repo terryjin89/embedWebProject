@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import DisclosureTable from './DisclosureTable';
 import './FavoriteDetailTabs.css';
 
 /**
@@ -19,6 +20,19 @@ function FavoriteDetailTabs() {
 
   // 탭 상태 관리
   const [activeTab, setActiveTab] = useState('disclosure');
+
+  // stockCode를 corpCode로 변환하는 매핑 테이블
+  const stockToCorpCodeMap = {
+    '005930': '00126380', // 삼성전자
+    '000660': '00164779', // SK하이닉스
+    '005380': '00401731', // 현대자동차
+    '066570': '00176701', // LG전자
+    '035420': '00782756', // NAVER
+    '035720': '00356370', // 카카오
+  };
+
+  // corpCode 가져오기 (stockCode가 없으면 기본값 사용)
+  const corpCode = stockToCorpCodeMap[stockCode] || '00126380';
 
   // 임시 더미 데이터 (실제 구현 시 API에서 가져올 데이터)
   const dummyStockData = {
@@ -54,14 +68,7 @@ function FavoriteDetailTabs() {
       case 'disclosure':
         return (
           <div className="tab-content">
-            <div className="content-placeholder">
-              <p className="placeholder-icon">📋</p>
-              <h3>공시정보</h3>
-              <p>기업의 공시 정보가 여기에 표시됩니다.</p>
-              <p className="placeholder-hint">
-                (DisclosureTable 컴포넌트 연동 예정)
-              </p>
-            </div>
+            <DisclosureTable corpCode={corpCode} />
           </div>
         );
 
