@@ -8,13 +8,13 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-company_analyzer}
-      MYSQL_USER: ${MYSQL_USER:-dbuser}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dbpassword}
+      MYSQL_USER: ${MYSQL_USER:-devuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-devpassword}
     ports:
       - "3306:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
-      - ./backend/src/main/resources/db:/docker-entrypoint-initdb.d
+      - ./mysql-data:/var/lib/mysql
+      - ./database/init-scripts:/docker-entrypoint-initdb.d
     networks:
       - app-network
     healthcheck:
