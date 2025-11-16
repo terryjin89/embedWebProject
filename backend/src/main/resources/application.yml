@@ -89,3 +89,17 @@ naver:
     url: https://openapi.naver.com/v1/search/news.json
     clientId: ${NAVER_CLIENT_ID:p3w60qMY4Y7ZwHot2W1_}
     clientSecret: ${NAVER_CLIENT_SECRET:NKkGJR6SP5}
+
+# Spring Boot Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  health:
+    defaults:
+      enabled: true
