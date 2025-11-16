@@ -76,4 +76,13 @@ claudedocs/
 # OS
 Thumbs.db
 .DS_Store
-desktop.ini.playwright-mcp/
+desktop.ini
+
+# Playwright MCP
+.playwright-mcp/
+
+# Claude Code
+.claude/settings.local.json
+
+# Docker volumes
+mysql-data/
