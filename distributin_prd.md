@@ -83,7 +83,7 @@ $ docker-compose down -v
 ```bash
 # .env 파일 (Git에 커밋 금지)
 MYSQL_ROOT_PASSWORD=rootpass123
-MYSQL_DATABASE=corp_analysis
+MYSQL_DATABASE=company-analyzer-db
 MYSQL_USER=devuser
 MYSQL_PASSWORD=devpass123
 
