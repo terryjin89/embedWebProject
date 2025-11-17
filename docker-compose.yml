@@ -5,11 +5,13 @@ services:
   mysql:
     image: mysql:8.0
     container_name: company-analyzer-db
+    env_file: ./.env # Explicitly load .env for this service 
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-company_analyzer}
-      MYSQL_USER: ${MYSQL_USER:-devuser}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-devpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-company-analyzer}
+      # Changed to use the Spring-aligned variables for consistency
+      MYSQL_USER: ${SPRING_DATASOURCE_USERNAME:-devuser}
+      MYSQL_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-devpassword}
     ports:
       - "3306:3306"
     volumes:
@@ -29,10 +31,15 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: company-analyzer-backend
+    env_file: ./.env # Load environment variables from .env file
     environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-local}
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-company_analyzer}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-devuser}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-devpassword}
+      # The following two lines are now handled directly by the `env_file` directive,
+      # which loads SPRING_DATASOURCE_USERNAME and SPRING_DATASOURCE_PASSWORD from the .env file.
+      # This avoids a complex substitution and potential errors.
+      # SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-devuser}
+      # SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-devpassword}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: true
       DART_API_KEY: ${DART_API_KEY}
@@ -55,12 +62,14 @@ services:
     image: node:22-alpine
     container_name: company-analyzer-frontend
     working_dir: /app
+    env_file: ./.env # Load environment variables from .env file
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080/api}
       VITE_DART_API_KEY: ${VITE_DART_API_KEY}
+      VITE_FINANCIAL_API_KEY: ${VITE_FINANCIAL_API_KEY}
+      VITE_EXCHANGE_RATE_API_KEY: ${VITE_EXCHANGE_RATE_API_KEY}
       VITE_NAVER_CLIENT_ID: ${VITE_NAVER_CLIENT_ID}
       VITE_NAVER_CLIENT_SECRET: ${VITE_NAVER_CLIENT_SECRET}
-      VITE_ENV: ${VITE_ENV:-development}
     ports:
       - "5173:5173"
     depends_on:

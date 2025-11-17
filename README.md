@@ -31,37 +31,68 @@
 - Docker & Docker Compose
 - MySQL 8.0
 
-## 시작하기
+## 🚀 시작하기 (Getting Started)
 
-### 사전 요구사항
+이 섹션은 신규 개발자가 로컬 환경에서 프로젝트를 실행하기 위한 단계별 가이드를 제공합니다.
 
-- Docker Desktop 설치
-- Docker Compose 설치
-- Git 설치
+### ✅ 사전 요구사항 (Prerequisites)
 
-### 환경 설정
+프로젝트를 시작하기 전에 다음 소프트웨어가 설치되어 있어야 합니다.
 
-1. 저장소 클론
+-   [Git](https://git-scm.com/downloads)
+-   [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Docker Compose가 포함되어 있습니다)
+
+### ⚙️ 환경 설정 (Environment Setup)
+
+#### 1. 저장소 클론 (Clone Repository)
+
+먼저, 프로젝트를 로컬 머신으로 복제합니다.
 
 ```bash
-git clone <repository-url>
-cd embedProject
+git clone https://github.com/terryjin89/embedWebProject.git
+cd embedWebProject
 ```
 
-2. 환경 변수 설정
+#### 2. 환경 변수 파일 생성 (Create Environment File)
+
+이 프로젝트는 민감한 정보(API 키, DB 비밀번호 등)를 `.env` 파일을 통해 관리합니다. Git에 포함된 `.env.example` 템플릿을 복사하여 `.env` 파일을 생성해야 합니다.
 
 ```bash
-# .env.example을 .env로 복사
 cp .env.example .env
-
-# .env 파일을 열어 실제 API 키 입력
 ```
 
-필수 환경 변수:
-- `DART_API_KEY`: DART API 키 (https://opendart.fss.or.kr/)
-- `NAVER_CLIENT_ID`: Naver API 클라이언트 ID
-- `NAVER_CLIENT_SECRET`: Naver API 클라이언트 시크릿
-- 데이터베이스 정보 (기본값 사용 가능)
+`.env` 파일은 Git에 의해 추적되지 않으므로, 여기에 입력하는 민감한 정보는 외부에 노출되지 않습니다.
+
+#### 3. API 키 발급 및 설정 (Get API Keys)
+
+생성된 `.env` 파일을 열고, 아래 목록에 따라 각 API 키를 발급받아 해당 변수에 값을 채워넣어야 합니다.
+
+-   `VITE_DART_API_KEY`
+    -   **설명**: DART(전자공시시스템) 기업 정보 조회를 위한 API 키입니다.
+    -   **발급처**: [DART 오픈 API 포털](https://opendart.fss.or.kr/)
+
+-   `VITE_FINANCIAL_API_KEY`
+    -   **설명**: 금융위원회 주식 시세 정보 조회를 위한 공공데이터포털 API 키입니다.
+    -   **발급처**: [공공데이터포털](https://www.data.go.kr/) (금융위원회_주식시세정보 검색 후 활용신청)
+
+-   `VITE_EXCHANGE_RATE_API_KEY`
+    -   **설명**: 한국수출입은행 환율 정보 조회를 위한 API 키입니다.
+    -   **발급처**: [한국수출입은행 경제통계시스템](https://www.koreaexim.go.kr/site/main/index.do)
+
+-   `VITE_NAVER_CLIENT_ID` & `VITE_NAVER_CLIENT_SECRET`
+    -   **설명**: 네이버 검색(뉴스) API 이용을 위한 클라이언트 ID와 시크릿입니다.
+    -   **발급처**: [네이버 개발자 센터](https://developers.naver.com/)
+
+#### 4. 데이터베이스 설정 (Database Configuration)
+
+`.env` 파일 내의 데이터베이스 관련 변수는 로컬 Docker 환경을 위해 미리 설정되어 있습니다. 특별한 경우가 아니라면 기본값을 그대로 사용해도 무방합니다.
+
+```
+MYSQL_ROOT_PASSWORD=rootpass123
+MYSQL_DATABASE=corp_analysis
+MYSQL_USER=devuser
+MYSQL_PASSWORD=devpass123
+```
 
 ### Docker Compose로 실행
 
