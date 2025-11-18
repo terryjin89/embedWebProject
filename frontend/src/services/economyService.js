@@ -1,5 +1,72 @@
 import axios from 'axios';
 
+// ==================================================
+// New Code (백엔드 API 호출)
+// ==================================================
+
+// 백엔드 API 엔드포인트
+const API_BASE_URL = '/api/exchange-rates';
+
+// Axios 인스턴스 생성
+const economyAPI = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// 경제 서비스 객체
+const economyService = {
+  /**
+   * 환율 정보 조회
+   * @param {string} searchDate - 조회 날짜 (YYYYMMDD 형식, 선택사항)
+   * @returns {Promise<Array>} 환율 정보 배열
+   */
+  getExchangeRates: async (searchDate) => {
+    try {
+      const response = await economyAPI.get('', {
+        params: { searchDate },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Backend API error (getExchangeRates):', error);
+      throw error;
+    }
+  },
+
+  /**
+   * 과거 환율 데이터 조회 (차트용)
+   * @param {string} currencyCode - 통화 코드 (예: 'USD')
+   * @param {number} days - 조회할 기간 (일)
+   * @returns {Promise<Array>} 차트 데이터 배열 [{ date: 'YYYY-MM-DD', rate: number }]
+   */
+  getHistoricalRates: async (currencyCode, days = 30) => {
+    try {
+      const response = await economyAPI.get(`/${currencyCode}/historical`, {
+        params: { days },
+      });
+      // 백엔드에서 받은 숫자(BigDecimal)를 프론트엔드에서 사용하기 좋은 숫자로 변환
+      return response.data.map(item => ({
+        ...item,
+        rate: Number(item.rate)
+      }));
+    } catch (error) {
+      console.error('Backend API error (getHistoricalRates):', error);
+      throw error;
+    }
+  },
+};
+
+export default economyService;
+
+
+// ==================================================
+// Old Code (주석 처리)
+// ==================================================
+/*
+import axios from 'axios';
+
 // 한국수출입은행 API 설정
 // 개발 환경에서는 Vite 프록시 사용
 const EXCHANGE_RATE_API_URL = '/api/exchange';
@@ -15,11 +82,11 @@ const economyAPI = axios.create({
 
 // 경제 서비스 객체
 const economyService = {
-  /**
+  /!**
    * 환율 정보 조회
    * @param {string} searchDate - 조회 날짜 (YYYYMMDD 형식, 선택사항)
    * @returns {Promise} API 응답
-   */
+   *!/
   getExchangeRates: async (searchDate) => {
     try {
       // 날짜가 없으면 오늘 날짜 사용
@@ -57,10 +124,10 @@ const economyService = {
     }
   },
 
-  /**
+  /!**
    * 오늘 날짜를 YYYYMMDD 형식으로 반환
    * @returns {string} YYYYMMDD 형식의 날짜 문자열
-   */
+   *!/
   getTodayDateString: () => {
     const today = new Date();
     const year = today.getFullYear();
@@ -69,11 +136,11 @@ const economyService = {
     return `${year}${month}${day}`;
   },
 
-  /**
+  /!**
    * 날짜 문자열을 YYYYMMDD 형식으로 변환
    * @param {Date} date - Date 객체
    * @returns {string} YYYYMMDD 형식의 날짜 문자열
-   */
+   *!/
   formatDate: (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -81,12 +148,12 @@ const economyService = {
     return `${year}${month}${day}`;
   },
 
-  /**
+  /!**
    * 전일대비 변화 계산
    * @param {number} current - 현재 값
    * @param {number} previous - 이전 값
    * @returns {Object} { change: 변화량, changePercent: 변화율, direction: 'up' | 'down' | 'same' }
-   */
+   *!/
   calculateChange: (current, previous) => {
     if (!current || !previous) {
       return { change: 0, changePercent: 0, direction: 'same' };
@@ -109,12 +176,12 @@ const economyService = {
     };
   },
 
-  /**
+  /!**
    * 과거 환율 데이터 조회 (차트용)
    * @param {string} currencyCode - 통화 코드 (예: 'USD', 'JPY(100)')
    * @param {number} days - 조회할 기간 (일)
    * @returns {Promise<Array>} 차트 데이터 배열 [{ date: 'YYYY-MM-DD', rate: number }]
-   */
+   *!/
   getHistoricalRates: async (currencyCode, days = 30) => {
     try {
       const chartData = [];
@@ -163,4 +230,5 @@ const economyService = {
 };
 
 export default economyService;
+*/
 
