@@ -122,18 +122,18 @@ function ExchangeRateTable({onRowClick}) {
             ) : (
               exchangeRates.map((rate, index) => (
                 <tr
-                  key={`${rate.cur_unit}-${index}`}
+                  key={`${rate.curUnit}-${index}`}
                   className={`
                     table-row
-                    ${selectedRow === rate.cur_unit ? 'selected' : ''}
+                    ${selectedRow === rate.curUnit ? 'selected' : ''}
                     ${index % 2 === 0 ? 'even' : 'odd'}
                   `}
                   onClick={() => handleRowClick(rate)}
                 >
-                  <td className="currency-code">{rate.cur_unit}</td>
-                  <td className="currency-name">{rate.cur_nm}</td>
+                  <td className="currency-code">{rate.curUnit}</td>
+                  <td className="currency-name">{rate.curNm}</td>
                   <td className="rate-value">
-                    {rate.deal_bas_r ? parseFloat(rate.deal_bas_r).toLocaleString('ko-KR', {
+                    {rate.dealBasR ? parseFloat(rate.dealBasR).toLocaleString('ko-KR', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     }) : '-'}

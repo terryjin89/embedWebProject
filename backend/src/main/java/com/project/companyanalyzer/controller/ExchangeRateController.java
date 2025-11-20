@@ -21,7 +21,7 @@ import java.util.List;
  * 한국수출입은행 환율 API 연동을 통한 환율 정보 제공
  */
 @Slf4j
-@Tag(name = "환율 API", description = "환율 정보 조회 API")
+@Tag(name = "환율 API")
 @RestController
 @RequestMapping("/api/exchange-rates")
 @RequiredArgsConstructor
