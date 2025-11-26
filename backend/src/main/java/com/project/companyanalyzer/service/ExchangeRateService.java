@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.companyanalyzer.dto.ExchangeRateDTO;
 import com.project.companyanalyzer.dto.ExchangeRateResponse;
+import com.project.companyanalyzer.dto.HistoricalRateDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,6 +60,15 @@ public class ExchangeRateService {
             "HKD",      // 홍콩 달러
             "SGD"       // 싱가포르 달러
     );
+
+    /**
+     * 외부 노출용 주요 코드 변환 (예: JPY(100) → JPY)
+     */
+    private String normalizeCurrencyCode(String curUnit) {
+        if (curUnit == null) return null;
+        if (curUnit.startsWith("JPY")) return "JPY";
+        return curUnit;
+    }
 
     /**
      * 환율 정보 조회
@@ -233,5 +243,50 @@ public class ExchangeRateService {
         LocalDate date = LocalDate.parse(searchDate, formatter);
         LocalDate previousDate = date.minusDays(1);
         return previousDate.format(formatter);
+    }
+
+    /**
+     * 특정 통화의 과거 환율 데이터 조회 (차트용)
+     *
+     * @param currencyCode 통화 코드 (예: USD)
+     * @param days         조회할 기간 (일)
+     * @return 과거 환율 데이터 리스트
+     */
+    public List<HistoricalRateDTO> getHistoricalRates(String currencyCode, int days) {
+        log.info("과거 환율 조회 시작 - 통화: {}, 기간: {}일", currencyCode, days);
+        List<HistoricalRateDTO> historicalRates = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        for (int i = 0; i < days; i++) {
+            LocalDate targetDate = today.minusDays(i);
+            String searchDate = targetDate.format(formatter);
+
+            try {
+                List<ExchangeRateResponse> dailyRates = fetchExchangeRates(searchDate);
+                dailyRates.stream()
+                        .filter(rate -> currencyCode.equals(rate.getCurUnit()))
+                        .findFirst()
+                        .ifPresent(rate -> {
+                            BigDecimal dealBasR = parseBigDecimal(rate.getDealBasR());
+                            if (dealBasR.compareTo(BigDecimal.ZERO) > 0) {
+                                historicalRates.add(HistoricalRateDTO.builder()
+                                        .date(targetDate.format(outputFormatter))
+                                        .rate(dealBasR)
+                                        .build());
+                            }
+                        });
+            } catch (Exception e) {
+                log.warn("과거 환율 데이터 조회 실패 - 날짜: {}, 통화: {}, 오류: {}", searchDate, currencyCode, e.getMessage());
+                // 특정 날짜에 데이터가 없거나 오류가 발생해도 계속 진행
+            }
+        }
+
+        // 날짜 오름차순으로 정렬
+        historicalRates.sort(Comparator.comparing(HistoricalRateDTO::getDate));
+
+        log.info("과거 환율 조회 완료 - 통화: {}, 결과: {}건", currencyCode, historicalRates.size());
+        return historicalRates;
     }
 }

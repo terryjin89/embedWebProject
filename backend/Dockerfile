@@ -17,14 +17,14 @@ COPY gradle.properties .
 # Convert CRLF to LF and give execution permission to gradlew
 RUN dos2unix gradlew && chmod +x gradlew
 
-# Download dependencies (cached layer)
-RUN ./gradlew dependencies --no-daemon || true
-
 # Copy source code
 COPY src src/
+
+# Build the application, skipping tests. This will reveal any compile errors.
+RUN ./gradlew clean build -x test
 
 # Expose Spring Boot port
 EXPOSE 8080
 
-# Start Spring Boot application in development mode
-CMD ["./gradlew", "bootRun", "--no-daemon"]
+# Start Spring Boot application from the built JAR
+CMD ["java", "-jar", "build/libs/company-analyzer-0.0.1-SNAPSHOT.jar"]

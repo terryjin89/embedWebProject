@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * 프론트엔드로 전달할 환율 정보 DTO
  * 전일대비 계산 결과 포함

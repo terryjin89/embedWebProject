@@ -8,7 +8,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 public class CorsConfig {
@@ -27,17 +26,35 @@ public class CorsConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
+        CorsConfiguration config = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
-        configuration.setAllowedMethods(Arrays.asList(allowedMethods.split(",")));
-        configuration.setAllowedHeaders(List.of(allowedHeaders));
-        configuration.setAllowCredentials(allowCredentials);
-        configuration.setMaxAge(3600L);
+        // Origin
+        config.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+
+        // Methods
+        config.setAllowedMethods(Arrays.asList(allowedMethods.split(",")));
+
+        // Headers (공백 제거 + 모두 등록)
+        config.setAllowedHeaders(Arrays.asList(allowedHeaders.split(",")));
+
+        // 중요: 브라우저 기본 헤더 포함
+        config.addAllowedHeader("Origin");
+        config.addAllowedHeader("Content-Type");
+        config.addAllowedHeader("Accept");
+        config.addAllowedHeader("Authorization");
+        config.addAllowedHeader("X-Requested-With");
+
+        // 최신 브라우저 자동 헤더도 허용
+        config.addAllowedHeader("sec-ch-ua");
+        config.addAllowedHeader("sec-ch-ua-mobile");
+        config.addAllowedHeader("sec-ch-ua-platform");
+
+        config.setAllowCredentials(allowCredentials);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 }
+

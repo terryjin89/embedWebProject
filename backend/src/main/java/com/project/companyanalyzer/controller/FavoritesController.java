@@ -39,7 +39,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/favorites")
 @RequiredArgsConstructor
-@Tag(name = "Favorites", description = "관심기업 API (인증 필수)")
+@Tag(name = "Favorites")
 @SecurityRequirement(name = "bearerAuth")
 public class FavoritesController {
 

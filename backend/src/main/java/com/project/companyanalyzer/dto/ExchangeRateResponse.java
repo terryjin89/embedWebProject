@@ -20,7 +20,7 @@ public class ExchangeRateResponse {
      * 조회 결과 코드
      * 1: 성공, 2: DATA코드 오류, 3: 인증코드 오류, 4: 일일제한횟수 마감
      */
-    private Integer result;
+    //private Integer result;
 
     /**
      * 통화 코드 (예: USD, JPY, EUR)

@@ -109,7 +109,7 @@ function App() {
                 {currentView === 'login' && <LoginForm />}
                 {currentView === 'signup' && <SignupForm />}
                 {currentView === 'exchange' && <ExchangeRateTable onRowClick={handleCurrencySelect}/>}
-                {currentView === 'chart' && <RateDetailChart currencyCode={selectedCurrency.cur_unit} currencyName={selectedCurrency.cur_nm} />}
+                {currentView === 'chart' && selectedCurrency && <RateDetailChart currencyCode={selectedCurrency.curUnit} currencyName={selectedCurrency.curNm} />}
                 {currentView === 'companies' && <CompanyTable />}
               </>
             } />

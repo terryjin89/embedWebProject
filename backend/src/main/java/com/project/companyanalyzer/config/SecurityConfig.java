@@ -69,6 +69,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",      // OpenAPI 3.0 문서
                                 "/auth/**",             // 인증 관련 API (로그인, 회원가입)
                                 "/stocks/**",           // 주가 API (공개)
+                                "/api/exchange-rates/**", // 환율 API (공개)
+                                "/api/exchange-rates", // 환율 API (공개)
                                 "/health",              // 헬스 체크
                                 "/actuator/**"          // Actuator 엔드포인트 (모니터링)
                         ).permitAll()

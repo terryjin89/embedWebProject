@@ -1,6 +1,7 @@
 package com.project.companyanalyzer.controller;
 
 import com.project.companyanalyzer.dto.ExchangeRateDTO;
+import com.project.companyanalyzer.dto.HistoricalRateDTO;
 import com.project.companyanalyzer.service.ExchangeRateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,7 +21,7 @@ import java.util.List;
  * 한국수출입은행 환율 API 연동을 통한 환율 정보 제공
  */
 @Slf4j
-@Tag(name = "환율 API", description = "환율 정보 조회 API")
+@Tag(name = "환율 API")
 @RestController
 @RequestMapping("/api/exchange-rates")
 @RequiredArgsConstructor
@@ -92,5 +93,31 @@ public class ExchangeRateController {
 
         log.info("특정 통화 환율 조회 완료 - curUnit: {}", curUnit);
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 특정 통화의 과거 환율 데이터 조회 (차트용)
+     *
+     * @param curUnit 통화 코드 (예: USD)
+     * @param days    조회 기간 (일)
+     * @return 과거 환율 데이터 리스트
+     */
+    @Operation(
+            summary = "과거 환율 조회 (차트용)",
+            description = "특정 통화의 과거 환율 정보를 기간(일)만큼 조회하여 차트용 데이터로 반환합니다."
+    )
+    @GetMapping("/{curUnit}/historical")
+    public ResponseEntity<List<HistoricalRateDTO>> getHistoricalRates(
+            @Parameter(description = "통화 코드", example = "USD")
+            @PathVariable String curUnit,
+            @Parameter(description = "조회 기간(일)", example = "30")
+            @RequestParam(defaultValue = "30") int days
+    ) {
+        log.info("과거 환율 조회 요청 - curUnit: {}, days: {}", curUnit, days);
+
+        List<HistoricalRateDTO> historicalRates = exchangeRateService.getHistoricalRates(curUnit, days);
+
+        log.info("과거 환율 조회 완료 - curUnit: {}, 결과: {}건", curUnit, historicalRates.size());
+        return ResponseEntity.ok(historicalRates);
     }
 }
