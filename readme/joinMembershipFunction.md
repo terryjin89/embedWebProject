@@ -594,7 +594,207 @@ npx playwright test tests/auth-guard.spec.js --reporter=list
 
 ---
 
-### Phase 4: 이슈 트러블슈팅
+### Phase 4: 프론트엔드-백엔드 API 통합
+
+#### 4-1. API 엔드포인트 불일치 수정
+
+**문제점 발견:**
+- 프론트엔드 `authService.js`는 `/auth/register` 호출
+- 백엔드는 `/auth/signup` 제공
+- API 엔드포인트 불일치로 404 에러 발생
+
+**해결 방법:**
+
+**1) authService.js 수정**
+
+**파일 위치**: `frontend/src/services/authService.js:97`
+
+```javascript
+// 수정 전
+register: async (userData) => {
+  const response = await authAPI.post('/auth/register', userData);
+  return response.data;
+}
+
+// 수정 후
+signup: async (userData) => {
+  const response = await authAPI.post('/auth/signup', userData);
+  return response.data;
+}
+```
+
+**2) AuthContext.jsx Mock 데이터 제거**
+
+**파일 위치**: `frontend/src/contexts/AuthContext.jsx:59`
+
+```javascript
+// 수정 전 (Mock 데이터 사용)
+const login = async (email) => {
+  const mockToken = 'mock_jwt_token_' + Date.now();
+  const mockUser = { id: 1, email: email, name: email.split('@')[0] };
+  setToken(mockToken);
+  setUser(mockUser);
+  return { success: true };
+}
+
+// 수정 후 (실제 API 호출)
+const login = async (email, password) => {
+  const response = await authService.login(email, password);
+  const { token, userCode, email: userEmail, name } = response;
+
+  setToken(token);
+  setUser({ userCode, email: userEmail, name });
+  localStorage.setItem('authToken', token);
+  localStorage.setItem('user', JSON.stringify({ userCode, email: userEmail, name }));
+
+  return { success: true };
+}
+```
+
+**3) signup 함수 추가**
+
+**파일 위치**: `frontend/src/contexts/AuthContext.jsx:91`
+
+```javascript
+const signup = async (email, password, name) => {
+  const response = await authService.signup({ email, password, name });
+  const { token, userCode, email: userEmail, name: userName } = response;
+
+  setToken(token);
+  setUser({ userCode, email: userEmail, name: userName });
+  localStorage.setItem('authToken', token);
+  localStorage.setItem('user', JSON.stringify({ userCode, email: userEmail, name: userName }));
+
+  return { success: true };
+}
+```
+
+**4) SignupForm.jsx API 호출 로직 추가**
+
+**파일 위치**: `frontend/src/components/SignupForm.jsx:160`
+
+```javascript
+// 수정 전 (alert만 표시)
+const handleSubmit = (e) => {
+  e.preventDefault();
+  if (validateForm()) {
+    alert('회원가입 기능은 백엔드 연동 후 동작합니다.');
+  }
+}
+
+// 수정 후 (실제 API 호출)
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (validateForm()) {
+    setIsSubmitting(true);
+    try {
+      const result = await signup(formData.email, formData.password, formData.name);
+      if (result.success) {
+        window.location.href = '/';
+      }
+    } catch (error) {
+      setErrors((prev) => ({ ...prev, email: '회원가입 중 오류가 발생했습니다.' }));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+}
+```
+
+**5) LoginForm.jsx 리다이렉트 수정**
+
+**파일 위치**: `frontend/src/components/LoginForm.jsx:129`
+
+**문제**: App.jsx의 구조 때문에 `navigate()`로는 페이지 상태가 변경되지 않음
+**해결**: `window.location.href` 사용으로 페이지 새로고침
+
+```javascript
+// 수정 전
+navigate(redirectFrom, { replace: true });
+
+// 수정 후
+window.location.href = redirectFrom;
+```
+
+#### 4-2. 통합 테스트 실행
+
+**Docker 컨테이너 실행:**
+```bash
+docker-compose up -d
+```
+
+**결과:**
+- ✅ company-analyzer-db (MySQL) - Healthy
+- ✅ company-analyzer-backend (Spring Boot) - Running
+- ✅ company-analyzer-frontend (React + Vite) - Running
+
+**백엔드 API 테스트:**
+
+**1) 회원가입 테스트**
+```bash
+curl -X POST http://localhost:8080/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"email":"newuser@test.com","password":"password123","name":"New User"}'
+```
+
+**응답**: HTTP 201 Created ✅
+```json
+{
+  "token": "eyJhbGciOiJIUzUxMiJ9...",
+  "userCode": "b6455fc5-c6b0-4117-8372-ed7bc7a8392d",
+  "email": "newuser@test.com",
+  "name": "New User"
+}
+```
+
+**2) 로그인 테스트**
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"newuser@test.com","password":"password123"}'
+```
+
+**응답**: HTTP 200 OK ✅
+
+**3) 토큰 검증 테스트**
+```bash
+curl -X GET http://localhost:8080/api/auth/verify \
+  -H "Authorization: Bearer eyJhbGciOiJIUzUxMiJ9..."
+```
+
+**응답**: HTTP 200 OK ✅
+```json
+{
+  "token": null,
+  "userCode": "b6455fc5-c6b0-4117-8372-ed7bc7a8392d",
+  "email": "newuser@test.com",
+  "name": "New User"
+}
+```
+
+**프론트엔드 Playwright E2E 테스트:**
+
+**테스트 시나리오 1: 회원가입**
+1. 메인 페이지 접속 (http://localhost:5173)
+2. "회원가입" 버튼 클릭
+3. 폼 입력: 이름("테스트사용자"), 이메일("playwright@test.com"), 비밀번호("password123")
+4. "회원가입" 버튼 클릭
+5. 콘솔 확인: "Signup successful: {userCode: ..., email: playwright@test.com}"
+6. localStorage 확인: authToken, user 저장 ✅
+
+**테스트 시나리오 2: 로그인**
+1. 메인 페이지 접속
+2. "로그인" 버튼 클릭
+3. 폼 입력: 이메일("playwright@test.com"), 비밀번호("password123")
+4. "로그인" 버튼 클릭
+5. 콘솔 확인: "Login successful: {userCode: ..., email: playwright@test.com}"
+6. localStorage 확인: authToken, user 저장 ✅
+
+**통합 테스트 결과**: 모든 테스트 통과 ✅
+
+---
+
+### Phase 5: 이슈 트러블슈팅
 
 #### 이슈 1: AuthController 경로 불일치 (403 Forbidden)
 
@@ -995,7 +1195,7 @@ useAuth Hook (소비자)
 ## 📝 커밋 히스토리
 
 ```bash
-# 1. SecurityConfig 경로 수정
+# 1. SecurityConfig 경로 수정 (이전 작업)
 git commit -m "fix(auth): SecurityConfig 공개 엔드포인트 경로 수정
 
 - /auth/** -> /api/auth/**로 변경
@@ -1003,7 +1203,7 @@ git commit -m "fix(auth): SecurityConfig 공개 엔드포인트 경로 수정
 
 🎫 SCRUM-6"
 
-# 2. AuthController 경로 수정
+# 2. AuthController 경로 수정 (이전 작업)
 git commit -m "fix(auth): AuthController 요청 매핑 경로 수정
 
 - @RequestMapping("/auth") -> @RequestMapping("/api/auth")
@@ -1011,7 +1211,7 @@ git commit -m "fix(auth): AuthController 요청 매핑 경로 수정
 
 🎫 SCRUM-6"
 
-# 3. Swagger @Tag description 제거
+# 3. Swagger @Tag description 제거 (이전 작업)
 git commit -m "fix(auth): Swagger @Tag description 제거
 
 - @Tag description 파라미터로 인한 렌더링 오류 해결
@@ -1019,12 +1219,27 @@ git commit -m "fix(auth): Swagger @Tag description 제거
 
 🎫 SCRUM-6"
 
-# 4. 문서화 및 주석 추가
-git commit -m "docs(auth): SCRUM-6 구현 문서 및 코드 주석 추가
+# 4. 프론트엔드-백엔드 통합 완료 (2025-11-26)
+git commit -m "feat(auth): 회원가입/로그인 프론트엔드-백엔드 통합 완료
 
-- readme/joinMembershipFunction.md 생성
-- 프론트엔드/백엔드 주요 파일에 JSDoc 주석 추가
-- AuthController.java, AuthService.java, JwtTokenProvider.java 등
+- authService.js: register → signup 변경, API 엔드포인트 정리
+- AuthContext.jsx: signup 함수 추가, 실제 API 호출로 변경
+- SignupForm.jsx: API 호출 로직 추가, 리다이렉트 수정
+- LoginForm.jsx: 리다이렉트 수정 (navigate → window.location.href)
+
+통합 테스트:
+- ✅ 백엔드 API 테스트 (회원가입, 로그인, 토큰검증)
+- ✅ 프론트엔드 Playwright E2E 테스트
+
+🎫 SCRUM-6"
+
+# 5. 문서화 업데이트
+git commit -m "docs(auth): SCRUM-6 통합 테스트 결과 및 코드 추적 가이드 업데이트
+
+- readme/joinMembershipFunction.md 업데이트
+- Phase 4 추가: 프론트엔드-백엔드 API 통합
+- 통합 테스트 시나리오 및 결과 추가
+- 코드 추적 경로 명시 (파일 위치 및 라인 번호)
 
 🎫 SCRUM-6"
 ```

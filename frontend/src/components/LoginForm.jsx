@@ -125,8 +125,8 @@ function LoginForm() {
         const result = await login(formData.email, formData.password);
 
         if (result.success) {
-          // 로그인 성공 시 원래 페이지로 리다이렉트
-          navigate(redirectFrom, { replace: true });
+          // 로그인 성공 시 원래 페이지로 리다이렉트 (페이지 새로고침)
+          window.location.href = redirectFrom;
         } else {
           setErrors((prev) => ({
             ...prev,

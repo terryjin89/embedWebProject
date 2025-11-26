@@ -9,11 +9,9 @@
  *
  * API 엔드포인트:
  * - POST /api/auth/login
- * - POST /api/auth/register
+ * - POST /api/auth/signup
  * - POST /api/auth/logout
- * - POST /api/auth/refresh
- * - GET /api/auth/me
- * - PUT /api/auth/password
+ * - GET /api/auth/verify
  *
  * 📁 상세 문서: readme/joinMembershipFunction.md
  * 🎫 SCRUM-6
@@ -96,12 +94,12 @@ const authService = {
    * @param {string} userData.name - 사용자 이름
    * @returns {Promise} API 응답
    */
-  register: async (userData) => {
+  signup: async (userData) => {
     try {
-      const response = await authAPI.post('/auth/register', userData);
+      const response = await authAPI.post('/auth/signup', userData);
       return response.data;
     } catch (error) {
-      console.error('Register API error:', error);
+      console.error('Signup API error:', error);
       throw error;
     }
   },
@@ -121,48 +119,20 @@ const authService = {
   },
 
   /**
-   * 토큰 갱신
+   * 토큰 검증
+   * @param {string} token - JWT 토큰
    * @returns {Promise} API 응답
    */
-  refreshToken: async () => {
+  verifyToken: async (token) => {
     try {
-      const response = await authAPI.post('/auth/refresh');
-      return response.data;
-    } catch (error) {
-      console.error('Refresh token API error:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * 현재 사용자 정보 조회
-   * @returns {Promise} API 응답
-   */
-  getCurrentUser: async () => {
-    try {
-      const response = await authAPI.get('/auth/me');
-      return response.data;
-    } catch (error) {
-      console.error('Get current user API error:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * 비밀번호 변경
-   * @param {string} currentPassword - 현재 비밀번호
-   * @param {string} newPassword - 새 비밀번호
-   * @returns {Promise} API 응답
-   */
-  changePassword: async (currentPassword, newPassword) => {
-    try {
-      const response = await authAPI.put('/auth/password', {
-        currentPassword,
-        newPassword,
+      const response = await authAPI.get('/auth/verify', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       return response.data;
     } catch (error) {
-      console.error('Change password API error:', error);
+      console.error('Verify token API error:', error);
       throw error;
     }
   },

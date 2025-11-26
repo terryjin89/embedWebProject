@@ -12,9 +12,14 @@
  * 🎫 SCRUM-6
  */
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import './SignupForm.css';
 
 function SignupForm() {
+  const { signup } = useAuth();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -35,6 +40,8 @@ function SignupForm() {
     passwordConfirm: false,
     name: false,
   });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 비밀번호 강도 계산
   const getPasswordStrength = (password) => {
@@ -150,13 +157,33 @@ function SignupForm() {
   };
 
   // 폼 제출 핸들러
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validateForm()) {
-      console.log('회원가입 데이터:', formData);
-      // TODO: API 호출 로직 추가 (SCRUM-14에서 구현)
-      alert('회원가입 기능은 백엔드 연동 후 동작합니다.');
+      setIsSubmitting(true);
+
+      try {
+        const result = await signup(formData.email, formData.password, formData.name);
+
+        if (result.success) {
+          // 회원가입 성공 시 메인 페이지로 리다이렉트 (페이지 새로고침)
+          window.location.href = '/';
+        } else {
+          setErrors((prev) => ({
+            ...prev,
+            email: result.error || '회원가입에 실패했습니다.',
+          }));
+        }
+      } catch (error) {
+        console.error('Signup error:', error);
+        setErrors((prev) => ({
+          ...prev,
+          email: '회원가입 중 오류가 발생했습니다.',
+        }));
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -274,8 +301,8 @@ function SignupForm() {
           </div>
 
           {/* 회원가입 버튼 */}
-          <button type="submit" className="btn-primary">
-            회원가입
+          <button type="submit" className="btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? '회원가입 중...' : '회원가입'}
           </button>
         </form>
 

@@ -6,6 +6,7 @@
  * - token: JWT 토큰
  * - loading: 인증 상태 로딩 여부
  * - login(email, password): 로그인 함수
+ * - signup(email, password, name): 회원가입 함수
  * - logout(): 로그아웃 함수
  * - isAuthenticated(): 인증 상태 확인 함수
  * - validateToken(): 토큰 유효성 검증 함수
@@ -20,6 +21,7 @@
  */
 import { createContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import authService from '../services/authService';
 
 // AuthContext 생성
 const AuthContext = createContext(null);
@@ -55,32 +57,70 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // 로그인 함수
-  const login = async (email) => {
+  const login = async (email, password) => {
     try {
-      // TODO: SCRUM-15에서 실제 API 호출로 대체
-      // const response = await authService.login(email, password);
-      // const { token: newToken, user: userData } = response.data;
+      // 백엔드 API 호출 (SCRUM-15 구현 완료)
+      const response = await authService.login(email, password);
 
-      // 임시 Mock 데이터 (백엔드 연동 전)
-      const mockToken = 'mock_jwt_token_' + Date.now();
-      const mockUser = {
-        id: 1,
-        email: email,
-        name: email.split('@')[0],
+      // 응답 데이터 구조: { token, userCode, email, name }
+      const { token: newToken, userCode, email: userEmail, name } = response;
+
+      const userData = {
+        userCode,
+        email: userEmail,
+        name,
       };
 
       // 상태 업데이트
-      setToken(mockToken);
-      setUser(mockUser);
+      setToken(newToken);
+      setUser(userData);
 
       // localStorage에 저장
-      localStorage.setItem('authToken', mockToken);
-      localStorage.setItem('user', JSON.stringify(mockUser));
+      localStorage.setItem('authToken', newToken);
+      localStorage.setItem('user', JSON.stringify(userData));
 
+      console.log('Login successful:', { userCode, email: userEmail });
       return { success: true };
     } catch (error) {
       console.error('Login failed:', error);
-      return { success: false, error: error.message };
+      const errorMessage = error.response?.data?.message || error.message || '로그인에 실패했습니다.';
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  // 회원가입 함수
+  const signup = async (email, password, name) => {
+    try {
+      // 백엔드 API 호출
+      const response = await authService.signup({
+        email,
+        password,
+        name,
+      });
+
+      // 응답 데이터 구조: { token, userCode, email, name }
+      const { token: newToken, userCode, email: userEmail, name: userName } = response;
+
+      const userData = {
+        userCode,
+        email: userEmail,
+        name: userName,
+      };
+
+      // 상태 업데이트
+      setToken(newToken);
+      setUser(userData);
+
+      // localStorage에 저장
+      localStorage.setItem('authToken', newToken);
+      localStorage.setItem('user', JSON.stringify(userData));
+
+      console.log('Signup successful:', { userCode, email: userEmail });
+      return { success: true };
+    } catch (error) {
+      console.error('Signup failed:', error);
+      const errorMessage = error.response?.data?.message || error.message || '회원가입에 실패했습니다.';
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -103,15 +143,21 @@ export const AuthProvider = ({ children }) => {
   };
 
   // 토큰 검증 함수 (만료 여부 확인)
-  const validateToken = () => {
-    // TODO: SCRUM-15에서 JWT 디코딩 및 만료 시간 검증 추가
+  const validateToken = async () => {
     if (!token) {
       return false;
     }
 
-    // 임시 검증 로직 (백엔드 연동 전)
-    // 실제로는 JWT 디코딩하여 exp claim 확인 필요
-    return true;
+    try {
+      // 백엔드 API 호출로 토큰 검증
+      await authService.verifyToken(token);
+      return true;
+    } catch (error) {
+      console.error('Token validation failed:', error);
+      // 토큰이 유효하지 않으면 로그아웃 처리
+      logout();
+      return false;
+    }
   };
 
   // 인증 상태 확인 함수
@@ -125,6 +171,7 @@ export const AuthProvider = ({ children }) => {
     token,
     loading,
     login,
+    signup,
     logout,
     isAuthenticated,
     validateToken,
