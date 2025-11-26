@@ -12,18 +12,10 @@ import FavoritesPage from './pages/FavoritesPage';
 import FavoriteDetailPage from './pages/FavoriteDetailPage';
 import StockChartTestPage from './pages/StockChartTestPage';
 import NewsSearchPage from './pages/NewsSearchPage';
+import MainContent from './components/MainContent';
 import './App.css';
 
 function App() {
-  const [currentView, setCurrentView] = useState('exchange'); // 'login', 'signup', 'exchange', 'chart', 'companies'
-  const [selectedCurrency, setSelectedCurrency] = useState(null);
-
-  const handleCurrencySelect = (currency) => {
-    // console.log('App: handleCurrencySelect 함수가 호출되었습니다.', currency);
-    setSelectedCurrency(currency);
-    setCurrentView('chart');
-  };
-  // console.log('App: 컴포넌트 렌더링. 현재 view:', currentView, '선택된 통화:',selectedCurrency);
   return (
     <AuthProvider>
       <BrowserRouter>
@@ -65,54 +57,7 @@ function App() {
             <Route path="/news" element={<NewsSearchPage />} />
 
             {/* 메인 페이지 라우트 */}
-            <Route path="/" element={
-              <>
-                <div className="form-toggle">
-                  <button
-                    className={`toggle-btn ${currentView === 'login' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('login')}
-                  >
-                    로그인
-                  </button>
-                  <button
-                    className={`toggle-btn ${currentView === 'signup' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('signup')}
-                  >
-                    회원가입
-                  </button>
-                  <button
-                    className={`toggle-btn ${currentView === 'exchange' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('exchange')}
-                  >
-                    환율정보
-                  </button>
-                  <button
-                    className={`toggle-btn ${currentView === 'companies' ? 'active' : ''}`}
-                    onClick={() => setCurrentView('companies')}
-                  >
-                    기업정보
-                  </button>
-                  <button
-                    className="toggle-btn"
-                    onClick={() => window.location.href = '/favorites'}
-                  >
-                    관심기업
-                  </button>
-                  <button
-                    className="toggle-btn"
-                    onClick={() => window.location.href = '/news'}
-                  >
-                    뉴스검색
-                  </button>
-                </div>
-
-                {currentView === 'login' && <LoginForm />}
-                {currentView === 'signup' && <SignupForm />}
-                {currentView === 'exchange' && <ExchangeRateTable onRowClick={handleCurrencySelect}/>}
-                {currentView === 'chart' && selectedCurrency && <RateDetailChart currencyCode={selectedCurrency.curUnit} currencyName={selectedCurrency.curNm} />}
-                {currentView === 'companies' && <CompanyTable />}
-              </>
-            } />
+            <Route path="/" element={<MainContent />} />
           </Routes>
         </div>
       </BrowserRouter>

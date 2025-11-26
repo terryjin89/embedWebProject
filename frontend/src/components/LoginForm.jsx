@@ -179,7 +179,7 @@ function LoginForm() {
               autoComplete="email"
             />
             {errors.email && touched.email && (
-              <span className="error-message">{errors.email}</span>
+              <span className="validation-error">{errors.email}</span>
             )}
           </div>
 
@@ -200,7 +200,7 @@ function LoginForm() {
               autoComplete="current-password"
             />
             {errors.password && touched.password && (
-              <span className="error-message">{errors.password}</span>
+              <span className="validation-error">{errors.password}</span>
             )}
           </div>
 

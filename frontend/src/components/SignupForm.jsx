@@ -167,9 +167,12 @@ function SignupForm() {
         const result = await signup(formData.email, formData.password, formData.name);
 
         if (result.success) {
-          // 회원가입 성공 시 메인 페이지로 리다이렉트 (페이지 새로고침)
+          // 회원가입 성공 시 팝업 표시 후 메인 페이지로 리다이렉트
+          alert('회원가입이 완료되었습니다');
           window.location.href = '/';
         } else {
+          // 회원가입 실패 시 팝업 표시 후 회원가입 페이지에 머물기
+          alert('회원가입에 실패하였습니다');
           setErrors((prev) => ({
             ...prev,
             email: result.error || '회원가입에 실패했습니다.',
@@ -177,6 +180,8 @@ function SignupForm() {
         }
       } catch (error) {
         console.error('Signup error:', error);
+        // 회원가입 실패 시 팝업 표시 후 회원가입 페이지에 머물기
+        alert('회원가입에 실패하였습니다');
         setErrors((prev) => ({
           ...prev,
           email: '회원가입 중 오류가 발생했습니다.',
@@ -213,7 +218,7 @@ function SignupForm() {
               autoComplete="name"
             />
             {errors.name && touched.name && (
-              <span className="error-message">{errors.name}</span>
+              <span className="validation-error">{errors.name}</span>
             )}
           </div>
 
@@ -234,7 +239,7 @@ function SignupForm() {
               autoComplete="email"
             />
             {errors.email && touched.email && (
-              <span className="error-message">{errors.email}</span>
+              <span className="validation-error">{errors.email}</span>
             )}
           </div>
 
@@ -255,7 +260,7 @@ function SignupForm() {
               autoComplete="new-password"
             />
             {errors.password && touched.password && (
-              <span className="error-message">{errors.password}</span>
+              <span className="validation-error">{errors.password}</span>
             )}
 
             {/* 비밀번호 강도 표시기 */}
@@ -296,7 +301,7 @@ function SignupForm() {
               autoComplete="new-password"
             />
             {errors.passwordConfirm && touched.passwordConfirm && (
-              <span className="error-message">{errors.passwordConfirm}</span>
+              <span className="validation-error">{errors.passwordConfirm}</span>
             )}
           </div>
 
