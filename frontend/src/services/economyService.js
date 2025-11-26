@@ -1,10 +1,25 @@
+/**
+ * 경제 지표 API 서비스
+ *
+ * 백엔드 환율 API와 통신하는 서비스 계층
+ * - Axios를 사용한 HTTP 요청
+ * - Vite 프록시를 통해 /api/exchange-rates로 전달
+ * - 환율 목록 조회 및 과거 환율 데이터 조회 기능 제공
+ *
+ * API 엔드포인트:
+ * - GET /api/exchange-rates?searchDate=YYYYMMDD
+ * - GET /api/exchange-rates/{curUnit}/historical?days=N
+ *
+ * 📁 상세 문서: readme/exchangeRateFunction.md
+ * 🎫 SCRUM-7
+ */
 import axios from 'axios';
 
 // ==================================================
 // New Code (백엔드 API 호출)
 // ==================================================
 
-// 백엔드 API 엔드포인트
+// 백엔드 API 엔드포인트 (Vite 프록시를 통해 백엔드로 전달됨)
 const API_BASE_URL = '/api/exchange-rates';
 
 // Axios 인스턴스 생성

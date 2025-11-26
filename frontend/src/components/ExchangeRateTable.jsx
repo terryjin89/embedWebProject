@@ -1,3 +1,15 @@
+/**
+ * 환율 테이블 컴포넌트
+ *
+ * 주요 10개국 통화의 환율 정보를 테이블 형태로 표시
+ * - 한국수출입은행 API를 통해 실시간 환율 데이터 조회
+ * - 전일대비 변동 정보 표시
+ * - 행 클릭 시 환율 차트 페이지로 이동
+ *
+ * 📁 상세 문서: readme/exchangeRateFunction.md
+ * 🔗 API: GET /api/exchange-rates?searchDate=YYYYMMDD
+ * 🎫 SCRUM-7, SCRUM-18
+ */
 import { useState, useEffect } from 'react';
 import economyService from '../services/economyService';
 import './ExchangeRateTable.css';

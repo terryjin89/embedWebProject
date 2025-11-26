@@ -1,3 +1,19 @@
+/**
+ * 환율 차트 컴포넌트
+ *
+ * 선택한 통화의 과거 환율 추이를 LineChart로 시각화
+ * - Recharts 라이브러리를 사용한 환율 차트 렌더링
+ * - 기간 선택 기능 (7일/30일/90일/1년)
+ * - 통계 정보 표시 (최고가/최저가/평균가)
+ * - 커스텀 툴팁 (날짜, 환율)
+ *
+ * @param {string} currencyCode - 통화 코드 (예: USD, JPY(100))
+ * @param {string} currencyName - 통화명 (예: 미국 달러, 일본 옌)
+ *
+ * 📁 상세 문서: readme/exchangeRateFunction.md
+ * 🔗 API: GET /api/exchange-rates/{curUnit}/historical?days=N
+ * 🎫 SCRUM-7, SCRUM-19
+ */
 import { useState, useEffect } from 'react';
 import {
   LineChart,
