@@ -1192,6 +1192,283 @@ useAuth Hook (소비자)
 
 ---
 
+## 🎨 Phase 5: 로그인/회원가입 UI 개선
+
+**작업 일자**: 2025-11-26
+**브랜치**: `feature/SCRUM-6-auth-ui-improvements`
+
+### 📌 개선 사항
+
+#### 1. 로그인/로그아웃 버튼 토글 기능
+
+**요구사항**:
+- 로그인 전: "로그인", "회원가입" 버튼 표시
+- 로그인 후: "로그아웃" 버튼 표시, "로그인"/"회원가입" 버튼 숨김
+- 로그아웃 시: 다시 "로그인", "회원가입" 버튼 표시
+
+**구현**:
+
+```jsx
+// frontend/src/components/MainContent.jsx
+const { user, logout } = useAuth();
+
+{!user ? (
+  <>
+    <button onClick={() => setCurrentView('login')}>로그인</button>
+    <button onClick={() => setCurrentView('signup')}>회원가입</button>
+  </>
+) : (
+  <button onClick={handleLogout}>로그아웃</button>
+)}
+```
+
+**코드 위치**:
+- `frontend/src/App.jsx`: 17행 - MainContent 컴포넌트 import
+- `frontend/src/App.jsx`: 60행 - MainContent 렌더링
+- `frontend/src/components/MainContent.jsx`: 1-89행 - 전체 컴포넌트 구현
+- `frontend/src/components/MainContent.jsx`: 37-58행 - 조건부 버튼 렌더링
+
+#### 2. 회원가입 성공/실패 팝업 추가
+
+**요구사항**:
+- 회원가입 성공 시: "회원가입이 완료되었습니다" 팝업 표시 후 메인 페이지로 리다이렉트
+- 회원가입 실패 시: "회원가입에 실패하였습니다" 팝업 표시 후 회원가입 페이지에 머물기
+
+**구현**:
+
+```jsx
+// frontend/src/components/SignupForm.jsx
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (validateForm()) {
+    setIsSubmitting(true);
+
+    try {
+      const result = await signup(formData.email, formData.password, formData.name);
+
+      if (result.success) {
+        alert('회원가입이 완료되었습니다');
+        window.location.href = '/';
+      } else {
+        alert('회원가입에 실패하였습니다');
+        setErrors((prev) => ({
+          ...prev,
+          email: result.error || '회원가입에 실패했습니다.',
+        }));
+      }
+    } catch (error) {
+      alert('회원가입에 실패하였습니다');
+      setErrors((prev) => ({
+        ...prev,
+        email: '회원가입 중 오류가 발생했습니다.',
+      }));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+};
+```
+
+**코드 위치**:
+- `frontend/src/components/SignupForm.jsx`: 160-193행 - handleSubmit 함수
+- `frontend/src/components/SignupForm.jsx`: 171행 - 성공 팝업
+- `frontend/src/components/SignupForm.jsx`: 175행 - 실패 팝업 (result.success === false)
+- `frontend/src/components/SignupForm.jsx`: 184행 - 실패 팝업 (catch 블록)
+
+#### 3. CSS 클래스명 변경 (error-message → validation-error)
+
+**문제**:
+- `error-message` 클래스명이 CSS에서 공백 문제를 발생시킴
+- 일부 CSS 프레임워크나 브라우저 확장 프로그램과 충돌 가능성
+
+**해결**:
+- 모든 `error-message` 클래스를 `validation-error`로 변경
+- 명확한 의미 전달: 폼 검증 에러임을 명시
+
+**수정 파일**:
+
+```css
+/* frontend/src/components/LoginForm.css */
+/* Validation Error Message */
+.validation-error {
+  font-size: var(--font-size-xs);
+  color: var(--danger-500);
+  margin-top: var(--spacing-xs);
+  display: block;
+}
+```
+
+```css
+/* frontend/src/components/SignupForm.css */
+/* Validation Error Message */
+.validation-error {
+  font-size: var(--font-size-xs);
+  color: var(--danger-500);
+  margin-top: var(--spacing-xs);
+  display: block;
+}
+```
+
+**코드 위치**:
+- `frontend/src/components/LoginForm.jsx`: 182행, 203행 - validation-error 사용
+- `frontend/src/components/LoginForm.css`: 118-123행 - validation-error 클래스 정의
+- `frontend/src/components/SignupForm.jsx`: 221, 242, 263, 304행 - validation-error 사용
+- `frontend/src/components/SignupForm.css`: 94-99행 - validation-error 클래스 정의
+
+#### 4. MainContent 컴포넌트 분리
+
+**목적**:
+- App.jsx 간소화
+- 관심사 분리 (라우팅 vs 메인 콘텐츠)
+- 재사용성 향상
+
+**변경 전 (App.jsx)**:
+```jsx
+function App() {
+  const [currentView, setCurrentView] = useState('exchange');
+  const [selectedCurrency, setSelectedCurrency] = useState(null);
+
+  // ... 버튼 및 컨텐츠 렌더링 로직
+}
+```
+
+**변경 후 (App.jsx + MainContent.jsx)**:
+```jsx
+// App.jsx
+function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<MainContent />} />
+          {/* ... 다른 라우트 */}
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}
+
+// MainContent.jsx
+function MainContent() {
+  const { user, logout } = useAuth();
+  const [currentView, setCurrentView] = useState('exchange');
+  const [selectedCurrency, setSelectedCurrency] = useState(null);
+
+  // ... 버튼 및 컨텐츠 렌더링 로직
+}
+```
+
+**코드 위치**:
+- `frontend/src/App.jsx`: 1-69행 - 간소화된 App 컴포넌트
+- `frontend/src/components/MainContent.jsx`: 1-89행 - 분리된 MainContent 컴포넌트
+
+### 📊 변경 파일 요약
+
+| 파일 | 변경 유형 | 변경 라인 | 설명 |
+|------|----------|-----------|------|
+| `frontend/src/App.jsx` | 수정 | 1-69 | MainContent 컴포넌트 분리, 간소화 |
+| `frontend/src/components/MainContent.jsx` | 신규 | 1-89 | 메인 콘텐츠 로직 분리, 인증 기반 버튼 토글 |
+| `frontend/src/components/LoginForm.jsx` | 수정 | 182, 203 | error-message → validation-error |
+| `frontend/src/components/LoginForm.css` | 수정 | 118-123 | validation-error 클래스 정의 |
+| `frontend/src/components/SignupForm.jsx` | 수정 | 160-193 | 성공/실패 팝업 추가 |
+| `frontend/src/components/SignupForm.jsx` | 수정 | 221, 242, 263, 304 | error-message → validation-error |
+| `frontend/src/components/SignupForm.css` | 수정 | 48-132 | 폼 스타일 추가, validation-error 클래스 정의 |
+
+### 🧪 테스트 시나리오
+
+#### 1. 로그인/로그아웃 버튼 토글 테스트
+
+**시나리오 1**: 비로그인 상태
+- **Given**: 메인 페이지에 접근
+- **When**: 사용자가 로그인하지 않은 상태
+- **Then**: "로그인", "회원가입" 버튼이 표시됨
+
+**시나리오 2**: 로그인 후
+- **Given**: 사용자가 로그인 성공
+- **When**: 메인 페이지로 리다이렉트됨
+- **Then**: "로그아웃" 버튼이 표시되고, "로그인"/"회원가입" 버튼은 숨겨짐
+
+**시나리오 3**: 로그아웃 후
+- **Given**: 로그인된 상태에서 "로그아웃" 버튼 클릭
+- **When**: 로그아웃이 완료됨
+- **Then**: "로그인", "회원가입" 버튼이 다시 표시됨
+
+#### 2. 회원가입 팝업 테스트
+
+**시나리오 1**: 회원가입 성공
+- **Given**: 회원가입 페이지에서 유효한 정보 입력
+- **When**: 회원가입 버튼 클릭
+- **Then**: "회원가입이 완료되었습니다" 팝업이 표시되고, 메인 페이지로 이동
+
+**시나리오 2**: 회원가입 실패 (중복 이메일)
+- **Given**: 회원가입 페이지에서 이미 존재하는 이메일 입력
+- **When**: 회원가입 버튼 클릭
+- **Then**: "회원가입에 실패하였습니다" 팝업이 표시되고, 회원가입 페이지에 머뭄
+
+**시나리오 3**: 회원가입 실패 (네트워크 오류)
+- **Given**: 회원가입 페이지에서 유효한 정보 입력
+- **When**: 네트워크 오류 발생
+- **Then**: "회원가입에 실패하였습니다" 팝업이 표시되고, 회원가입 페이지에 머뭄
+
+#### 3. CSS 클래스명 변경 테스트
+
+**시나리오**: validation-error 스타일 적용
+- **Given**: 로그인/회원가입 폼에서 유효하지 않은 입력
+- **When**: 입력 필드를 벗어남 (blur)
+- **Then**: 빨간색 에러 메시지가 정상적으로 표시됨 (공백 없이)
+
+### 🔍 트러블슈팅
+
+#### 문제 1: useAuth Hook 미정의
+
+**증상**:
+```
+Uncaught Error: useAuth must be used within AuthProvider
+```
+
+**원인**:
+- MainContent 컴포넌트에서 useAuth를 사용하지만 AuthProvider 외부에서 렌더링됨
+
+**해결**:
+- App.jsx에서 AuthProvider를 BrowserRouter 상위에 배치
+- 모든 라우트가 AuthProvider 내부에서 렌더링되도록 보장
+
+**코드**:
+```jsx
+// App.jsx
+<AuthProvider>
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<MainContent />} />
+    </Routes>
+  </BrowserRouter>
+</AuthProvider>
+```
+
+#### 문제 2: 로그아웃 후 버튼이 즉시 변경되지 않음
+
+**증상**:
+- 로그아웃 버튼을 클릭해도 "로그인" 버튼이 표시되지 않음
+
+**원인**:
+- logout 함수가 localStorage만 삭제하고 페이지 새로고침을 하지 않음
+- AuthContext의 user 상태가 업데이트되지 않음
+
+**해결**:
+- handleLogout 함수에서 window.location.href = '/'로 페이지 새로고침
+
+**코드**:
+```jsx
+// MainContent.jsx
+const handleLogout = () => {
+  logout();
+  window.location.href = '/';
+};
+```
+
+---
+
 ## 📝 커밋 히스토리
 
 ```bash
@@ -1240,6 +1517,18 @@ git commit -m "docs(auth): SCRUM-6 통합 테스트 결과 및 코드 추적 가
 - Phase 4 추가: 프론트엔드-백엔드 API 통합
 - 통합 테스트 시나리오 및 결과 추가
 - 코드 추적 경로 명시 (파일 위치 및 라인 번호)
+
+🎫 SCRUM-6"
+
+# 6. 로그인/회원가입 UI 개선 (2025-11-26)
+git commit -m "feat(auth): 로그인/회원가입 UI 개선
+
+- 로그인 시 '로그인' 버튼을 '로그아웃'으로 변경
+- 로그인 시 '회원가입' 버튼 숨김 처리
+- 로그아웃 시 '로그인', '회원가입' 버튼 표시
+- 회원가입 성공/실패 팝업 추가
+- error-message 클래스를 validation-error로 변경하여 CSS 공백 문제 해결
+- MainContent 컴포넌트 분리 (App.jsx 간소화)
 
 🎫 SCRUM-6"
 ```
