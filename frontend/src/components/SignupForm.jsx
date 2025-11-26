@@ -1,3 +1,16 @@
+/**
+ * 회원가입 폼 컴포넌트
+ *
+ * 새로운 사용자를 등록하는 폼을 제공합니다.
+ * - 이메일, 비밀번호, 비밀번호 확인, 이름 입력 필드
+ * - 실시간 폼 검증 (이메일 형식, 비밀번호 길이, 비밀번호 일치)
+ * - 비밀번호 강도 표시기 (약함/보통/강함/매우 강함)
+ * - touched 상태 관리 (사용자가 입력한 필드만 에러 표시)
+ *
+ * 📁 상세 문서: readme/joinMembershipFunction.md
+ * 🔗 API: POST /api/auth/signup
+ * 🎫 SCRUM-6
+ */
 import { useState } from 'react';
 import './SignupForm.css';
 

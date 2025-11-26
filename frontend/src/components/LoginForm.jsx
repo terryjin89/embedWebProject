@@ -1,3 +1,17 @@
+/**
+ * 로그인 폼 컴포넌트
+ *
+ * 사용자 인증을 위한 로그인 폼을 제공합니다.
+ * - 이메일, 비밀번호 입력 필드
+ * - 실시간 폼 검증
+ * - useAuth Hook을 통한 로그인 처리
+ * - ProtectedRoute에서 전달된 리다이렉트 메시지 표시
+ * - 로그인 성공 시 원래 페이지로 리다이렉트
+ *
+ * 📁 상세 문서: readme/joinMembershipFunction.md
+ * 🔗 API: POST /api/auth/login
+ * 🎫 SCRUM-6
+ */
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';

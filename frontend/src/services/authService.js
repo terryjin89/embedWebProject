@@ -1,3 +1,23 @@
+/**
+ * 인증 API 서비스
+ *
+ * 백엔드 인증 API와 통신하는 서비스 계층
+ * - Axios를 사용한 HTTP 요청
+ * - Authorization 헤더에 JWT 토큰 자동 추가 (요청 인터셉터)
+ * - 401 Unauthorized 에러 자동 처리 (응답 인터셉터)
+ * - 로그인, 회원가입, 로그아웃, 토큰 검증 기능 제공
+ *
+ * API 엔드포인트:
+ * - POST /api/auth/login
+ * - POST /api/auth/register
+ * - POST /api/auth/logout
+ * - POST /api/auth/refresh
+ * - GET /api/auth/me
+ * - PUT /api/auth/password
+ *
+ * 📁 상세 문서: readme/joinMembershipFunction.md
+ * 🎫 SCRUM-6
+ */
 import axios from 'axios';
 
 // API Base URL (환경 변수에서 가져오기)

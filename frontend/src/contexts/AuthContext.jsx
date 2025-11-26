@@ -1,3 +1,23 @@
+/**
+ * 인증 Context (전역 상태 관리)
+ *
+ * 애플리케이션 전역에서 사용자 인증 상태를 관리합니다.
+ * - user: 현재 로그인한 사용자 정보
+ * - token: JWT 토큰
+ * - loading: 인증 상태 로딩 여부
+ * - login(email, password): 로그인 함수
+ * - logout(): 로그아웃 함수
+ * - isAuthenticated(): 인증 상태 확인 함수
+ * - validateToken(): 토큰 유효성 검증 함수
+ *
+ * localStorage 관리:
+ * - 로그인 시 authToken, user 저장
+ * - 로그아웃 시 authToken, user 삭제
+ * - 페이지 새로고침 시 localStorage에서 토큰 복원
+ *
+ * 📁 상세 문서: readme/joinMembershipFunction.md
+ * 🎫 SCRUM-6
+ */
 import { createContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
