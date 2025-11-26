@@ -16,7 +16,13 @@ function ExchangeRateTable({onRowClick}) {
     setError(null);
 
     try {
-      const data = await economyService.getExchangeRates();
+      // 한국수출입은행 API는 당일 데이터를 제공하지 않으므로
+      // 어제 날짜를 YYYYMMDD 형식으로 생성
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const searchDate = yesterday.toISOString().slice(0, 10).replace(/-/g, '');
+
+      const data = await economyService.getExchangeRates(searchDate);
       setExchangeRates(data);
       setLastUpdated(new Date());
     } catch (err) {

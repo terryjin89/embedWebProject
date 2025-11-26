@@ -12,7 +12,7 @@ export default defineConfig({
     proxy: {
       // 백엔드 API 프록시 설정
       '/api': {
-        target: 'http://backend:8080',
+        target: process.env.VITE_PROXY_TARGET || 'http://backend:8080',
         changeOrigin: true,
         secure: false,
         // /api/** 경로는 백엔드로 프록시
