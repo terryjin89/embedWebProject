@@ -63,12 +63,26 @@ function NewsSearchPage() {
   };
 
   /**
-   * HTML 태그 제거
+   * HTML 태그 및 URL 인코딩 문자 제거
    */
   const stripHtmlTags = (html) => {
+    if (!html) return '';
+
+    // 1. HTML 태그 제거
     const div = document.createElement('div');
     div.innerHTML = html;
-    return div.textContent || div.innerText || '';
+    let text = div.textContent || div.innerText || '';
+
+    // 2. URL 인코딩 문자 제거 (%EC%9D%B4 같은 패턴)
+    text = text.replace(/%[0-9A-F]{2}/gi, '');
+
+    // 3. 연속된 공백 제거
+    text = text.replace(/\s+/g, ' ').trim();
+
+    // 4. 불필요한 특수문자 제거
+    text = text.replace(/[<>]/g, '');
+
+    return text;
   };
 
   /**
