@@ -75,6 +75,9 @@ function NewsSearchPage() {
       <button className="toggle-btn" onClick={() => navigate('/', { state: { view: 'companies' } })}>
         기업정보
       </button>
+      <button className="toggle-btn" onClick={() => navigate('/', { state: { view: 'stocks' } })}>
+        관심기업
+      </button>
       <button className="toggle-btn active" onClick={() => navigate('/news')}>
         뉴스검색
       </button>

@@ -48,7 +48,8 @@ function NewsSearch({ onSearchResults, onLoading, onError }) {
       const company = searchQuery.trim();
       // hashtagOverride가 있으면 사용, 없으면 selectedHashtag 사용
       const currentHashtag = hashtagOverride !== undefined ? hashtagOverride : selectedHashtag;
-      const hashtag = currentHashtag ? `#${currentHashtag}` : '';
+      // 백엔드에서 '#' 기호를 추가하므로 여기서는 제거
+      const hashtag = currentHashtag ? currentHashtag : '';
 
       // 검색 파라미터
       const searchParams = {
