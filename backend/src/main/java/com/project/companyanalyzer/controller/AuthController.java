@@ -29,7 +29,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "인증 관련 API")
+@Tag(name = "Authentication")
 public class AuthController {
 
     private final AuthService authService;

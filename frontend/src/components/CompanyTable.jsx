@@ -14,25 +14,15 @@ function CompanyTable() {
   const [lastUpdated, setLastUpdated] = useState(null);
 
   // 검색 및 필터 상태
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchInput, setSearchInput] = useState('');        // 검색 입력값 (실제 input value)
+  const [searchKeyword, setSearchKeyword] = useState('');    // 검색 실행값 (API 호출 시 사용)
   const [selectedIndustry, setSelectedIndustry] = useState('');
-  const [debouncedKeyword, setDebouncedKeyword] = useState('');
 
   // 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const limit = 20;
-
-  // 검색어 디바운싱 (500ms)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedKeyword(searchKeyword);
-      setCurrentPage(1); // 검색 시 첫 페이지로 이동
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchKeyword]);
 
   // 업종 목록 로드
   useEffect(() => {
@@ -51,29 +41,60 @@ function CompanyTable() {
   }, []);
 
   // 기업 목록 로드
+  // 📝 문서 참고: readme/companyInfoFunction.md - "5. 기업고유번호 검색" 섹션 (143-148라인)
   const loadCompanies = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await companyService.getCompanies({
-        page: currentPage,
-        limit,
-        search: debouncedKeyword,
-        industry: selectedIndustry,
-      });
+      // 8자리 숫자인 경우 기업고유번호(corpCode)로 DART API를 통해 검색
+      // 정규식으로 8자리 숫자 패턴 확인
+      const isCorpCode = /^\d{8}$/.test(searchKeyword.trim());
 
-      setCompanies(data.companies || []);
-      setTotal(data.total || 0);
-      setTotalPages(data.totalPages || 1);
+      if (isCorpCode) {
+        console.log('기업고유번호로 DART API 검색:', searchKeyword.trim());
+
+        // DART API를 통해 기업 상세 정보 조회 (백엔드 경유)
+        const companyDetail = await companyService.getCompanyDetail(searchKeyword.trim());
+
+        // 응답이 성공이면 배열로 변환하여 표시
+        if (companyDetail && companyDetail.status === '000') {
+          setCompanies([companyDetail]);
+          setTotal(1);
+          setTotalPages(1);
+          setCurrentPage(1);
+        } else {
+          // 검색 결과 없음
+          setCompanies([]);
+          setTotal(0);
+          setTotalPages(1);
+          setError('해당 기업고유번호로 등록된 기업을 찾을 수 없습니다.');
+        }
+      } else {
+        // 일반 검색 (기업명, 종목명, 종목코드)
+        const data = await companyService.getCompanies({
+          page: currentPage,
+          limit,
+          search: searchKeyword,
+          industry: selectedIndustry,
+        });
+
+        setCompanies(data.companies || []);
+        setTotal(data.total || 0);
+        setTotalPages(data.totalPages || 1);
+      }
+
       setLastUpdated(new Date());
     } catch (err) {
       console.error('Failed to load companies:', err);
       setError('기업 정보를 불러오는데 실패했습니다.');
+      setCompanies([]);
+      setTotal(0);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, debouncedKeyword, selectedIndustry]);
+  }, [currentPage, searchKeyword, selectedIndustry]);
 
   // 컴포넌트 마운트 및 필터 변경 시 데이터 로드
   useEffect(() => {
@@ -85,9 +106,22 @@ function CompanyTable() {
     loadCompanies();
   };
 
-  // 검색어 입력 핸들러
+  // 검색어 입력 핸들러 (입력값만 업데이트, API 호출 안 함)
   const handleSearchChange = (e) => {
-    setSearchKeyword(e.target.value);
+    setSearchInput(e.target.value);
+  };
+
+  // 검색 실행 핸들러 (버튼 클릭 또는 엔터키)
+  const handleSearch = () => {
+    setSearchKeyword(searchInput);
+    setCurrentPage(1); // 검색 시 첫 페이지로 이동
+  };
+
+  // 엔터키 입력 핸들러
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   // 업종 필터 변경 핸들러
@@ -240,12 +274,19 @@ function CompanyTable() {
         <div className="search-box">
           <input
             type="text"
-            placeholder="기업명, 종목명, 종목코드로 검색..."
-            value={searchKeyword}
+            placeholder="기업고유번호로 검색..."
+            value={searchInput}
             onChange={handleSearchChange}
+            onKeyPress={handleKeyPress}
             className="search-input"
           />
-          <span className="search-icon">🔍</span>
+          <button
+            className="btn-search"
+            onClick={handleSearch}
+            title="검색"
+          >
+            🔍
+          </button>
         </div>
 
         <select

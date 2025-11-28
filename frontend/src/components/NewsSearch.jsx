@@ -27,8 +27,9 @@ function NewsSearch({ onSearchResults, onLoading, onError }) {
 
   /**
    * 검색 실행
+   * @param {string} hashtagOverride - 해시태그 오버라이드 (선택적)
    */
-  const performSearch = async () => {
+  const performSearch = async (hashtagOverride) => {
     // 유효성 검증
     if (!searchQuery.trim()) {
       if (onError) {
@@ -45,7 +46,10 @@ function NewsSearch({ onSearchResults, onLoading, onError }) {
     try {
       // 검색 쿼리 생성
       const company = searchQuery.trim();
-      const hashtag = selectedHashtag ? `#${selectedHashtag}` : '';
+      // hashtagOverride가 있으면 사용, 없으면 selectedHashtag 사용
+      const currentHashtag = hashtagOverride !== undefined ? hashtagOverride : selectedHashtag;
+      // 백엔드에서 '#' 기호를 추가하므로 여기서는 제거
+      const hashtag = currentHashtag ? currentHashtag : '';
 
       // 검색 파라미터
       const searchParams = {
@@ -111,8 +115,16 @@ function NewsSearch({ onSearchResults, onLoading, onError }) {
     // 이미 선택된 해시태그를 다시 클릭하면 선택 해제
     if (selectedHashtag === hashtag.value) {
       setSelectedHashtag('');
+      // 검색어가 있으면 해시태그 없이 재검색
+      if (searchQuery.trim()) {
+        performSearch(''); // 빈 문자열 = 해시태그 없음
+      }
     } else {
       setSelectedHashtag(hashtag.value);
+      // 검색어가 있으면 새 해시태그로 즉시 검색
+      if (searchQuery.trim()) {
+        performSearch(hashtag.value);
+      }
     }
   };
 

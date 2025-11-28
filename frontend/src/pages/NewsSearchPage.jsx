@@ -1,10 +1,15 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import NewsSearch from '../components/NewsSearch';
 import NewsList from '../components/NewsList';
 import newsService from '../services/newsService';
 import './NewsSearchPage.css';
 
 function NewsSearchPage() {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
   const [newsResults, setNewsResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -40,6 +45,46 @@ function NewsSearchPage() {
   };
 
   /**
+   * 로그아웃 핸들러
+   */
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/';
+  };
+
+  /**
+   * 네비게이션 바 렌더링
+   */
+  const renderNavigation = () => (
+    <div className="form-toggle">
+      {!user ? (
+        <>
+          <button className="toggle-btn" onClick={() => navigate('/', { state: { view: 'login' } })}>
+            로그인
+          </button>
+          <button className="toggle-btn" onClick={() => navigate('/', { state: { view: 'signup' } })}>
+            회원가입
+          </button>
+        </>
+      ) : (
+        <button className="toggle-btn" onClick={handleLogout}>로그아웃</button>
+      )}
+      <button className="toggle-btn" onClick={() => navigate('/', { state: { view: 'exchange' } })}>
+        환율정보
+      </button>
+      <button className="toggle-btn" onClick={() => navigate('/', { state: { view: 'companies' } })}>
+        기업정보
+      </button>
+      <button className="toggle-btn" onClick={() => navigate('/', { state: { view: 'stocks' } })}>
+        관심기업
+      </button>
+      <button className="toggle-btn active" onClick={() => navigate('/news')}>
+        뉴스검색
+      </button>
+    </div>
+  );
+
+  /**
    * 날짜 포맷팅
    */
   const formatDate = (dateString) => {
@@ -63,12 +108,26 @@ function NewsSearchPage() {
   };
 
   /**
-   * HTML 태그 제거
+   * HTML 태그 및 URL 인코딩 문자 제거
    */
   const stripHtmlTags = (html) => {
+    if (!html) return '';
+
+    // 1. HTML 태그 제거
     const div = document.createElement('div');
     div.innerHTML = html;
-    return div.textContent || div.innerText || '';
+    let text = div.textContent || div.innerText || '';
+
+    // 2. URL 인코딩 문자 제거 (%EC%9D%B4 같은 패턴)
+    text = text.replace(/%[0-9A-F]{2}/gi, '');
+
+    // 3. 연속된 공백 제거
+    text = text.replace(/\s+/g, ' ').trim();
+
+    // 4. 불필요한 특수문자 제거
+    text = text.replace(/[<>]/g, '');
+
+    return text;
   };
 
   /**
@@ -108,6 +167,9 @@ function NewsSearchPage() {
   return (
     <div className="news-search-page">
       <div className="news-search-page__container">
+        {/* 네비게이션 바 */}
+        {renderNavigation()}
+
         {/* 페이지 헤더 */}
         <div className="news-search-page__header">
           <h1 className="news-search-page__title">뉴스 검색</h1>

@@ -15,9 +15,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 /**
  * Naver 검색 API 연동 서비스
  *
@@ -59,11 +56,8 @@ public class NewsService {
         }
 
         try {
-            // 검색어 URL 인코딩
-            String encodedQuery = encodeQuery(query);
-
-            // API URL 생성
-            String url = buildSearchApiUrl(encodedQuery, display, start, sort);
+            // API URL 생성 (UriComponentsBuilder가 자동으로 인코딩하므로 수동 인코딩 불필요)
+            String url = buildSearchApiUrl(query, display, start, sort);
             log.debug("[Naver] API 호출 URL: {}", url);
 
             // HTTP 헤더 설정
@@ -115,32 +109,18 @@ public class NewsService {
     }
 
     /**
-     * 검색어 URL 인코딩
-     *
-     * @param query 검색어
-     * @return URL 인코딩된 검색어
-     */
-    private String encodeQuery(String query) {
-        try {
-            return URLEncoder.encode(query, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            log.error("[Naver] 검색어 인코딩 실패 - query: {}", query, e);
-            throw new RuntimeException("검색어 인코딩 실패", e);
-        }
-    }
-
-    /**
      * 뉴스 검색 API URL 생성
+     * (UriComponentsBuilder가 자동으로 URL 인코딩 처리)
      *
-     * @param encodedQuery URL 인코딩된 검색어
+     * @param query 검색어 (인코딩 전 원본)
      * @param display 한 번에 표시할 검색 결과 개수
      * @param start 검색 시작 위치
      * @param sort 정렬 옵션
      * @return API URL
      */
-    private String buildSearchApiUrl(String encodedQuery, Integer display, Integer start, String sort) {
+    private String buildSearchApiUrl(String query, Integer display, Integer start, String sort) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
-                .queryParam("query", encodedQuery)
+                .queryParam("query", query)
                 .queryParam("display", display != null ? display : 10)
                 .queryParam("start", start != null ? start : 1);
 

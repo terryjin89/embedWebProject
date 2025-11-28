@@ -8,10 +8,17 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  sql:
+    init:
+      mode: always  # data.sql 자동 실행 - SCRUM-8
+      encoding: UTF-8
+      continue-on-error: true  # 중복 데이터 INSERT 오류 무시
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+    defer-datasource-initialization: true  # Hibernate 스키마 생성 후 data.sql 실행 - SCRUM-8
     properties:
       hibernate:
         format_sql: true
@@ -75,7 +82,7 @@ dart:
   api:
     url: https://opendart.fss.or.kr/api
     key: ${DART_API_KEY:d76b2823154aff2001264dd25f0cc7bf256c6c7b}
-    mock-mode: ${DART_MOCK_MODE:true}  # true: 목업 데이터 사용, false: 실제 API 호출
+    mock-mode: ${DART_MOCK_MODE:false}  # true: 목업 데이터 사용, false: 실제 API 호출
 
 # Finance API Configuration (금융위원회 주식시세정보 API)
 finance:

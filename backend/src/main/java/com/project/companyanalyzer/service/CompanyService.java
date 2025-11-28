@@ -2,6 +2,7 @@ package com.project.companyanalyzer.service;
 
 import com.project.companyanalyzer.dto.CompanyDTO;
 import com.project.companyanalyzer.dto.CompanyListResponse;
+import com.project.companyanalyzer.dto.DartCompanyResponse;
 import com.project.companyanalyzer.dto.DartDisclosureResponse;
 import com.project.companyanalyzer.entity.Company;
 import com.project.companyanalyzer.repository.CompanyRepository;
@@ -12,11 +13,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 /**
  * 기업 정보 서비스
  *
+ * 📝 문서 참고: readme/companyInfoFunction.md - "백엔드 구현" 섹션 (400-430라인)
+ *
  * 기업 목록 조회, 검색, 필터링 및 상세 정보 조회를 처리
  * CompanyRepository와 DartApiService를 조합하여 사용
+ *
+ * 주요 기능:
+ * - 데이터베이스에서 기업 목록 조회 (페이지네이션, 검색, 필터링)
+ * - Entity → DTO 변환
+ * - DART API를 통한 실시간 공시 정보 조회
  */
 @Slf4j
 @Service
@@ -155,19 +165,34 @@ public class CompanyService {
     /**
      * 기업 상세 정보 조회 (고유번호)
      *
+     * DB에 있으면 DB에서 조회하고, 없으면 DART API를 통해 실시간 조회
+     *
      * @param corpCode 고유번호 (8자리)
      * @return 기업 상세 정보
      */
     public CompanyDTO getCompanyByCorpCode(String corpCode) {
         log.info("[CompanyService] 기업 상세 조회 - corpCode: {}", corpCode);
 
-        Company company = companyRepository.findByCorpCode(corpCode)
-                .orElseThrow(() -> {
-                    log.error("[CompanyService] 기업 정보 없음 - corpCode: {}", corpCode);
-                    return new RuntimeException("기업 정보를 찾을 수 없습니다. corpCode: " + corpCode);
-                });
+        // 1. DB에서 먼저 조회
+        Optional<Company> companyOpt = companyRepository.findByCorpCode(corpCode);
 
-        return CompanyDTO.fromEntity(company);
+        if (companyOpt.isPresent()) {
+            log.debug("[CompanyService] DB에서 기업 정보 조회 완료 - {}", companyOpt.get().getCorpName());
+            return CompanyDTO.fromEntity(companyOpt.get());
+        }
+
+        // 2. DB에 없으면 DART API 호출
+        log.info("[CompanyService] DB에 없음, DART API 호출 - corpCode: {}", corpCode);
+        DartCompanyResponse dartResponse = dartApiService.getCompanyInfo(corpCode);
+
+        if (dartResponse == null || !dartResponse.isSuccess()) {
+            log.error("[CompanyService] DART API에서도 기업 정보 없음 - corpCode: {}", corpCode);
+            throw new RuntimeException("기업 정보를 찾을 수 없습니다. corpCode: " + corpCode);
+        }
+
+        // 3. DART 응답을 CompanyDTO로 변환
+        log.info("[CompanyService] DART API에서 기업 정보 조회 완료 - {}", dartResponse.getCorpName());
+        return CompanyDTO.fromDartResponse(dartResponse);
     }
 
     /**
@@ -192,6 +217,7 @@ public class CompanyService {
      * 기업 공시 목록 조회
      *
      * DART API를 통해 해당 기업의 공시 목록을 조회합니다.
+     * DB에 기업이 있든 없든 DART API로 직접 조회합니다.
      *
      * @param corpCode 고유번호 (8자리)
      * @param bgnDe 시작일 (YYYYMMDD)
@@ -212,13 +238,8 @@ public class CompanyService {
         log.info("[CompanyService] 기업 공시 목록 조회 - corpCode: {}, 기간: {}~{}",
                 corpCode, bgnDe, endDe);
 
-        // 기업 존재 여부 확인
-        if (!companyRepository.findByCorpCode(corpCode).isPresent()) {
-            log.error("[CompanyService] 기업 정보 없음 - corpCode: {}", corpCode);
-            throw new RuntimeException("기업 정보를 찾을 수 없습니다. corpCode: " + corpCode);
-        }
-
-        // DART API 호출
+        // DART API 직접 호출 (DB 체크 제거)
+        // DB에 없는 기업도 DART API로 공시 조회 가능
         return dartApiService.getDisclosures(corpCode, bgnDe, endDe, pblntfTy, pageNo, pageCount);
     }
 

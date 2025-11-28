@@ -68,9 +68,12 @@ public class SecurityConfig {
                                 "/swagger-ui.html",     // Swagger UI HTML
                                 "/v3/api-docs/**",      // OpenAPI 3.0 문서
                                 "/api/auth/**",         // 인증 관련 API (로그인, 회원가입)
+                                "/api/companies/**",    // 기업 정보 API (공개) - SCRUM-8
+                                "/companies/**",        // 기업 정보 API (공개) - SCRUM-8
                                 "/stocks/**",           // 주가 API (공개)
                                 "/api/exchange-rates/**", // 환율 API (공개)
                                 "/api/exchange-rates", // 환율 API (공개)
+                                "/api/news/**",         // 뉴스 검색 API (공개) - SCRUM-12
                                 "/health",              // 헬스 체크
                                 "/actuator/**"          // Actuator 엔드포인트 (모니터링)
                         ).permitAll()

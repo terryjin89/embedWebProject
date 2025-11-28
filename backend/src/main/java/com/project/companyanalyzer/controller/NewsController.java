@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @Tag(name = "뉴스 API", description = "뉴스 검색 API")
 @RestController
-@RequestMapping("/news")
+@RequestMapping("/api/news")
 @RequiredArgsConstructor
 public class NewsController {
 
@@ -82,9 +82,15 @@ public class NewsController {
         }
 
         // 5. 검색어 조합 (기업명 + 해시태그)
+        // 프론트엔드에서 해시태그 값만 전송하면, 백엔드에서 '#' 기호를 추가
         String query = company;
         if (hashtag != null && !hashtag.trim().isEmpty()) {
-            query = company + " " + hashtag.trim();
+            String hashtagValue = hashtag.trim();
+            // '#' 기호가 없으면 추가
+            if (!hashtagValue.startsWith("#")) {
+                hashtagValue = "#" + hashtagValue;
+            }
+            query = company + " " + hashtagValue;
         }
 
         // 6. 페이지네이션 변환 (page, size → start, display)

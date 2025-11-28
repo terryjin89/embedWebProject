@@ -185,6 +185,43 @@ public class CompanyDTO {
     }
 
     /**
+     * DART API 응답을 CompanyDTO로 변환
+     * DB에 없는 기업을 DART API에서 조회한 경우 사용
+     *
+     * @param dartResponse DART API 응답
+     * @return CompanyDTO
+     */
+    public static CompanyDTO fromDartResponse(DartCompanyResponse dartResponse) {
+        if (dartResponse == null || !dartResponse.isSuccess()) {
+            return null;
+        }
+
+        return CompanyDTO.builder()
+                .corpCode(dartResponse.getCorpCode())
+                .corpName(dartResponse.getCorpName())
+                .corpNameEng(dartResponse.getCorpNameEng())
+                .stockName(dartResponse.getStockName())
+                .stockCode(dartResponse.getStockCode())
+                .ceoNm(dartResponse.getCeoNm())
+                .corpCls(dartResponse.getCorpCls())
+                .corpClsName(getCorpClsName(dartResponse.getCorpCls()))
+                .jurirNo(dartResponse.getJurirNo())
+                .bizrNo(dartResponse.getBizrNo())
+                .adres(dartResponse.getAdres())
+                .hmUrl(dartResponse.getHmUrl())
+                .irUrl(dartResponse.getIrUrl())
+                .phnNo(dartResponse.getPhnNo())
+                .faxNo(dartResponse.getFaxNo())
+                .indutyCode(dartResponse.getIndutyCode())
+                .estDt(dartResponse.getEstDt())
+                .estDtFormatted(formatEstDt(dartResponse.getEstDt()))
+                .accMt(dartResponse.getAccMt())
+                .createdAt(null)  // DART API 응답에는 없음
+                .updatedAt(null)  // DART API 응답에는 없음
+                .build();
+    }
+
+    /**
      * 법인구분 코드를 한글명으로 변환
      *
      * @param corpCls 법인구분 코드
