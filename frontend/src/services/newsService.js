@@ -38,15 +38,13 @@ const newsService = {
         throw new Error('기업명을 입력해주세요');
       }
 
-      // 검색 쿼리 생성
-      const query = hashtag ? `${company} ${hashtag}` : company;
-
-      // 백엔드 API 호출
+      // 백엔드 API 호출 - 백엔드가 company와 hashtag를 별도로 받음
       const response = await newsAPI.get(`${NEWS_API_URL}/search`, {
         params: {
-          query,
-          display: size,
-          start: (page - 1) * size + 1,
+          company,
+          hashtag: hashtag || undefined, // 빈 문자열이면 undefined로 전달
+          page,
+          size,
           sort,
         },
       });
