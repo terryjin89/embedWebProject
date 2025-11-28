@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import companyService from '../services/companyService';
 import DisclosureTable from '../components/DisclosureTable';
-import MainContent from '../components/MainContent';
 import './CompanyDetailPage.css';
 
 /**
@@ -15,11 +15,12 @@ import './CompanyDetailPage.css';
  * 기능:
  *    - 기업 기본 정보 표시 (데이터베이스 조회)
  *    - 공시 정보 표시 (DART API 실시간 조회)
- *    - MainContent 컴포넌트로 네비게이션 표시
+ *    - 상단 네비게이션 버튼 제공
  */
 function CompanyDetailPage() {
   const { corpCode } = useParams();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   // 상태 관리
   const [companyInfo, setCompanyInfo] = useState(null);
@@ -51,14 +52,67 @@ function CompanyDetailPage() {
 
   // 뒤로가기 버튼 핸들러 - 기업정보 페이지로 이동
   const handleBack = () => {
-    navigate('/companies');
+    // MainContent 컴포넌트의 currentView를 'companies'로 설정
+    navigate('/', { state: { view: 'companies' } });
   };
+
+  // 로그아웃 핸들러
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/';
+  };
+
+  // 네비게이션 바 렌더링
+  const renderNavigation = () => (
+    <div className="form-toggle">
+      {/* 로그인 상태에 따른 조건부 렌더링 */}
+      {!user ? (
+        <>
+          <button
+            className="toggle-btn"
+            onClick={() => navigate('/', { state: { view: 'login' } })}
+          >
+            로그인
+          </button>
+          <button
+            className="toggle-btn"
+            onClick={() => navigate('/', { state: { view: 'signup' } })}
+          >
+            회원가입
+          </button>
+        </>
+      ) : (
+        <button className="toggle-btn" onClick={handleLogout}>
+          로그아웃
+        </button>
+      )}
+
+      <button
+        className="toggle-btn"
+        onClick={() => navigate('/', { state: { view: 'exchange' } })}
+      >
+        환율정보
+      </button>
+      <button
+        className="toggle-btn active"
+        onClick={() => navigate('/', { state: { view: 'companies' } })}
+      >
+        기업정보
+      </button>
+      <button className="toggle-btn" onClick={() => navigate('/favorites')}>
+        관심기업
+      </button>
+      <button className="toggle-btn" onClick={() => navigate('/news')}>
+        뉴스검색
+      </button>
+    </div>
+  );
 
   // 로딩 상태
   if (loading) {
     return (
       <>
-        <MainContent />
+        {renderNavigation()}
         <div className="company-detail-container">
           <div className="loading-message">기업 정보를 불러오는 중...</div>
         </div>
@@ -70,7 +124,7 @@ function CompanyDetailPage() {
   if (error) {
     return (
       <>
-        <MainContent />
+        {renderNavigation()}
         <div className="company-detail-container">
           <div className="error-message">
             <p>{error}</p>
@@ -87,7 +141,7 @@ function CompanyDetailPage() {
   if (!companyInfo) {
     return (
       <>
-        <MainContent />
+        {renderNavigation()}
         <div className="company-detail-container">
           <div className="error-message">
             <p>기업 정보를 찾을 수 없습니다.</p>
@@ -102,7 +156,7 @@ function CompanyDetailPage() {
 
   return (
     <>
-      <MainContent />
+      {renderNavigation()}
       <div className="company-detail-container">
         {/* 헤더 */}
         <div className="detail-header">
