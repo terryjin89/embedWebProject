@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import newsService from '../services/newsService';
 import './NewsSearch.css';
@@ -25,30 +25,11 @@ function NewsSearch({ onSearchResults, onLoading, onError }) {
   const [sortOrder, setSortOrder] = useState('date');
   const [isSearching, setIsSearching] = useState(false);
 
-  // 첫 렌더링 추적 (해시태그 자동 검색용)
-  const isFirstRender = useRef(true);
-
-  /**
-   * 해시태그 변경 시 자동 검색
-   */
-  useEffect(() => {
-    // 첫 렌더링 시에는 실행하지 않음
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-
-    // 검색어가 있을 때만 자동 검색
-    if (searchQuery.trim()) {
-      performSearch();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedHashtag]); // selectedHashtag가 변경될 때마다 실행
-
   /**
    * 검색 실행
+   * @param {string} hashtagOverride - 해시태그 오버라이드 (선택적)
    */
-  const performSearch = async () => {
+  const performSearch = async (hashtagOverride) => {
     // 유효성 검증
     if (!searchQuery.trim()) {
       if (onError) {
@@ -65,7 +46,9 @@ function NewsSearch({ onSearchResults, onLoading, onError }) {
     try {
       // 검색 쿼리 생성
       const company = searchQuery.trim();
-      const hashtag = selectedHashtag ? `#${selectedHashtag}` : '';
+      // hashtagOverride가 있으면 사용, 없으면 selectedHashtag 사용
+      const currentHashtag = hashtagOverride !== undefined ? hashtagOverride : selectedHashtag;
+      const hashtag = currentHashtag ? `#${currentHashtag}` : '';
 
       // 검색 파라미터
       const searchParams = {
@@ -131,8 +114,16 @@ function NewsSearch({ onSearchResults, onLoading, onError }) {
     // 이미 선택된 해시태그를 다시 클릭하면 선택 해제
     if (selectedHashtag === hashtag.value) {
       setSelectedHashtag('');
+      // 검색어가 있으면 해시태그 없이 재검색
+      if (searchQuery.trim()) {
+        performSearch(''); // 빈 문자열 = 해시태그 없음
+      }
     } else {
       setSelectedHashtag(hashtag.value);
+      // 검색어가 있으면 새 해시태그로 즉시 검색
+      if (searchQuery.trim()) {
+        performSearch(hashtag.value);
+      }
     }
   };
 
