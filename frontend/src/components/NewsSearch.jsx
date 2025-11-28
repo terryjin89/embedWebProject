@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import newsService from '../services/newsService';
 import './NewsSearch.css';
@@ -24,6 +24,26 @@ function NewsSearch({ onSearchResults, onLoading, onError }) {
   const [selectedHashtag, setSelectedHashtag] = useState('');
   const [sortOrder, setSortOrder] = useState('date');
   const [isSearching, setIsSearching] = useState(false);
+
+  // 첫 렌더링 추적 (해시태그 자동 검색용)
+  const isFirstRender = useRef(true);
+
+  /**
+   * 해시태그 변경 시 자동 검색
+   */
+  useEffect(() => {
+    // 첫 렌더링 시에는 실행하지 않음
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    // 검색어가 있을 때만 자동 검색
+    if (searchQuery.trim()) {
+      performSearch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedHashtag]); // selectedHashtag가 변경될 때마다 실행
 
   /**
    * 검색 실행
