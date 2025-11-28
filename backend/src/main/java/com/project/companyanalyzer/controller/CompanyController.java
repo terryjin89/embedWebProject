@@ -18,16 +18,20 @@ import org.springframework.web.bind.annotation.*;
 /**
  * 기업 정보 API 컨트롤러
  *
+ * 📝 문서 참고: readme/companyInfoFunction.md - "API 명세" 섹션 (226-293라인)
+ *
  * 기업 목록 조회, 검색, 필터링, 상세 조회, 공시 정보 조회를 제공합니다.
  *
  * 엔드포인트:
  * - GET /api/companies - 기업 목록 조회 (검색, 필터링, 페이지네이션)
- * - GET /api/companies/{corpCode} - 기업 상세 조회
- * - GET /api/companies/{corpCode}/disclosures - 기업 공시 목록 조회
+ * - GET /api/companies/{corpCode} - 기업 상세 조회 (데이터베이스)
+ * - GET /api/companies/{corpCode}/disclosures - 기업 공시 목록 조회 (DART API 프록시)
+ *
+ * @see readme/companyInfoFunction.md
  */
 @Slf4j
 @RestController
-@RequestMapping("/companies")
+@RequestMapping("/api/companies")
 @RequiredArgsConstructor
 @Tag(name = "Company", description = "기업 정보 API")
 public class CompanyController {

@@ -157,6 +157,14 @@ public interface CompanyRepository extends JpaRepository<Company, String> {
     long countByCorpCls(String corpCls);
 
     /**
+     * 고유번호 존재 여부 확인
+     *
+     * @param corpCode 고유번호 (8자리)
+     * @return true면 존재, false면 없음
+     */
+    boolean existsByCorpCode(String corpCode);
+
+    /**
      * 종목코드 존재 여부 확인
      *
      * @param stockCode 종목코드 (6자리)

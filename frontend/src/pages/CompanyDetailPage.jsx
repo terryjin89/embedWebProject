@@ -2,8 +2,21 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import companyService from '../services/companyService';
 import DisclosureTable from '../components/DisclosureTable';
+import MainContent from '../components/MainContent';
 import './CompanyDetailPage.css';
 
+/**
+ * 기업 상세 페이지 컴포넌트
+ *
+ * 📝 문서 참고: readme/companyInfoFunction.md
+ *    - "6. 기업 상세 정보 조회" 섹션 (150-158라인)
+ *    - "7. 공시 정보 조회" 섹션 (160-175라인)
+ *
+ * 기능:
+ *    - 기업 기본 정보 표시 (데이터베이스 조회)
+ *    - 공시 정보 표시 (DART API 실시간 조회)
+ *    - MainContent 컴포넌트로 네비게이션 표시
+ */
 function CompanyDetailPage() {
   const { corpCode } = useParams();
   const navigate = useNavigate();
@@ -14,6 +27,7 @@ function CompanyDetailPage() {
   const [error, setError] = useState(null);
 
   // 기업 상세 정보 로드
+  // API 엔드포인트: GET /api/companies/{corpCode}
   useEffect(() => {
     const loadCompanyInfo = async () => {
       setLoading(true);
@@ -35,57 +49,68 @@ function CompanyDetailPage() {
     }
   }, [corpCode]);
 
-  // 뒤로가기 버튼 핸들러
+  // 뒤로가기 버튼 핸들러 - 기업정보 페이지로 이동
   const handleBack = () => {
-    navigate('/');
+    navigate('/companies');
   };
 
   // 로딩 상태
   if (loading) {
     return (
-      <div className="company-detail-container">
-        <div className="loading-message">기업 정보를 불러오는 중...</div>
-      </div>
+      <>
+        <MainContent />
+        <div className="company-detail-container">
+          <div className="loading-message">기업 정보를 불러오는 중...</div>
+        </div>
+      </>
     );
   }
 
   // 에러 상태
   if (error) {
     return (
-      <div className="company-detail-container">
-        <div className="error-message">
-          <p>{error}</p>
-          <button className="btn-back" onClick={handleBack}>
-            목록으로 돌아가기
-          </button>
+      <>
+        <MainContent />
+        <div className="company-detail-container">
+          <div className="error-message">
+            <p>{error}</p>
+            <button className="btn-back" onClick={handleBack}>
+              목록으로 돌아가기
+            </button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   // 데이터 없음
   if (!companyInfo) {
     return (
-      <div className="company-detail-container">
-        <div className="error-message">
-          <p>기업 정보를 찾을 수 없습니다.</p>
-          <button className="btn-back" onClick={handleBack}>
-            목록으로 돌아가기
-          </button>
+      <>
+        <MainContent />
+        <div className="company-detail-container">
+          <div className="error-message">
+            <p>기업 정보를 찾을 수 없습니다.</p>
+            <button className="btn-back" onClick={handleBack}>
+              목록으로 돌아가기
+            </button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="company-detail-container">
-      {/* 헤더 */}
-      <div className="detail-header">
-        <button className="btn-back" onClick={handleBack}>
-          ← 목록으로
-        </button>
-        <h1 className="company-title">{companyInfo.corp_name}</h1>
-      </div>
+    <>
+      <MainContent />
+      <div className="company-detail-container">
+        {/* 헤더 */}
+        <div className="detail-header">
+          <button className="btn-back" onClick={handleBack}>
+            ← 목록으로
+          </button>
+          <h1 className="company-title">{companyInfo.corp_name}</h1>
+        </div>
 
       {/* 기업 기본 정보 카드 */}
       <div className="company-info-card">
@@ -147,12 +172,13 @@ function CompanyDetailPage() {
         </div>
       </div>
 
-      {/* 공시 목록 */}
-      <div className="disclosure-section">
-        <h2 className="section-title">공시 정보</h2>
-        <DisclosureTable corpCode={corpCode} />
+        {/* 공시 목록 */}
+        <div className="disclosure-section">
+          <h2 className="section-title">공시 정보</h2>
+          <DisclosureTable corpCode={corpCode} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

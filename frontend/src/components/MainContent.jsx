@@ -9,7 +9,8 @@
  * 📁 상세 문서: readme/joinMembershipFunction.md
  * 🎫 SCRUM-6
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import LoginForm from './LoginForm';
 import SignupForm from './SignupForm';
@@ -19,8 +20,16 @@ import CompanyTable from './CompanyTable';
 
 function MainContent() {
   const { user, logout } = useAuth();
+  const location = useLocation();
   const [currentView, setCurrentView] = useState('exchange'); // 'login', 'signup', 'exchange', 'chart', 'companies'
   const [selectedCurrency, setSelectedCurrency] = useState(null);
+
+  // location.state에서 view 설정 확인 (상세페이지에서 돌아올 때)
+  useEffect(() => {
+    if (location.state?.view) {
+      setCurrentView(location.state.view);
+    }
+  }, [location.state]);
 
   const handleCurrencySelect = (currency) => {
     setSelectedCurrency(currency);

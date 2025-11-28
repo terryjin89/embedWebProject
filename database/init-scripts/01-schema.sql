@@ -6,6 +6,13 @@
 -- Collation: utf8mb4_unicode_ci
 -- ============================================================
 
+-- UTF-8 인코딩 설정 (한글 깨짐 방지)
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
+SET CHARACTER SET utf8mb4;
+SET character_set_client = utf8mb4;
+SET character_set_connection = utf8mb4;
+SET character_set_results = utf8mb4;
+
 -- 데이터베이스 생성
 CREATE DATABASE IF NOT EXISTS company_analyzer
 CHARACTER SET utf8mb4

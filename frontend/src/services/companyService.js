@@ -31,18 +31,57 @@ const companyService = {
       const { page = 1, limit = 20, search = '', industry = '' } = params;
 
       // 백엔드 API 호출 (실제 구현 시)
-      const response = await companyAPI.get(BACKEND_API_URL, {
-        params: {
-          page,
-          limit,
-          search,
-          industry,
-        },
-      });
+      // 백엔드는 page=0부터 시작하므로 -1 처리
+      // 빈 문자열은 undefined로 변환 (백엔드에서 null로 처리되도록)
+      const requestParams = {
+        page: page - 1,  // 프론트는 1부터, 백엔드는 0부터 시작
+        size: limit,     // 백엔드는 'size' 파라미터 사용
+      };
+
+      // 검색어가 있을 때만 keyword 파라미터 추가
+      if (search && search.trim()) {
+        requestParams.keyword = search.trim();
+      }
+
+      // 업종 코드가 있을 때만 indutyCode 파라미터 추가
+      if (industry && industry.trim()) {
+        requestParams.indutyCode = industry.trim();
+      }
+
+      const response = await companyAPI.get(BACKEND_API_URL, { params: requestParams });
 
       // 응답 데이터 검증
       if (response.data && response.data.companies && Array.isArray(response.data.companies)) {
-        return response.data;
+        // 백엔드 응답(camelCase)을 프론트엔드가 기대하는 형식(snake_case)으로 변환
+        const companies = response.data.companies.map(company => ({
+          corp_code: company.corpCode,
+          corp_name: company.corpName,
+          corp_name_eng: company.corpNameEng,
+          stock_name: company.stockName,
+          stock_code: company.stockCode,
+          ceo_nm: company.ceoNm,
+          corp_cls: company.corpCls,
+          corp_cls_name: company.corpClsName,
+          jurir_no: company.jurirNo,
+          bizr_no: company.bizrNo,
+          adres: company.adres,
+          hm_url: company.hmUrl,
+          ir_url: company.irUrl,
+          phn_no: company.phnNo,
+          fax_no: company.faxNo,
+          induty_code: company.indutyCode,
+          est_dt: company.estDt,
+          est_dt_formatted: company.estDtFormatted,
+          acc_mt: company.accMt,
+          isFavorite: company.isFavorite || false,
+        }));
+
+        return {
+          companies,
+          total: response.data.totalElements,  // totalElements -> total
+          totalPages: response.data.totalPages,
+          page: response.data.currentPage + 1,  // 0-based -> 1-based
+        };
       } else {
         // 유효하지 않은 응답이면 목업 데이터 사용
         console.log('백엔드 API 응답이 유효하지 않습니다. 목업 데이터를 사용합니다.');
@@ -58,28 +97,45 @@ const companyService = {
   },
 
   /**
-   * 기업 상세 정보 조회 (DART API 직접 호출)
+   * 기업 상세 정보 조회 (백엔드 API 호출)
+   * 📝 문서 참고: readme/companyInfoFunction.md - "6. 기업 상세 정보 조회" 섹션 (150-158라인)
+   *
    * @param {string} corpCode - 고유번호 (8자리)
    * @returns {Promise<Object>} 기업 상세 정보
    */
   getCompanyDetail: async (corpCode) => {
     try {
-      const response = await axios.get(`${DART_API_BASE_URL}/company.json`, {
-        params: {
-          crtfc_key: DART_API_KEY,
-          corp_code: corpCode,
-        },
-      });
+      // 백엔드 API 호출: GET /api/companies/{corpCode}
+      // 데이터 소스: 데이터베이스 (백엔드에서 조회)
+      const response = await companyAPI.get(`${BACKEND_API_URL}/${corpCode}`);
 
-      if (response.data.status === '000') {
-        return response.data;
-      } else {
-        throw new Error(response.data.message || '기업 정보를 찾을 수 없습니다');
-      }
+      // 백엔드 응답(camelCase)을 프론트엔드가 기대하는 형식(snake_case)으로 변환
+      const company = response.data;
+      return {
+        status: '000',
+        message: '정상',
+        corp_code: company.corpCode,
+        corp_name: company.corpName,
+        corp_name_eng: company.corpNameEng,
+        stock_name: company.stockName,
+        stock_code: company.stockCode,
+        ceo_nm: company.ceoNm,
+        corp_cls: company.corpCls,
+        jurir_no: company.jurirNo,
+        bizr_no: company.bizrNo,
+        adres: company.adres,
+        hm_url: company.hmUrl,
+        ir_url: company.irUrl,
+        phn_no: company.phnNo,
+        fax_no: company.faxNo,
+        induty_code: company.indutyCode,
+        est_dt: company.estDt,
+        acc_mt: company.accMt,
+      };
     } catch (error) {
       console.error('Company detail API error:', error);
 
-      // 개발 환경: 목업 데이터 반환 (CORS 에러 등으로 API 호출 실패 시)
+      // 개발 환경: 목업 데이터 반환 (백엔드 API 호출 실패 시)
       const mockCompanyDetails = {
         '00126380': {
           status: '000',
@@ -126,7 +182,7 @@ const companyService = {
       };
 
       if (mockCompanyDetails[corpCode]) {
-        console.log('CORS 에러로 목업 데이터를 사용합니다:', corpCode);
+        console.log('백엔드 API 호출 실패로 목업 데이터를 사용합니다:', corpCode);
         return mockCompanyDetails[corpCode];
       }
 
@@ -153,24 +209,28 @@ const companyService = {
    * @returns {Promise<Array>} 업종 목록 [{ code: string, name: string }]
    */
   getIndustries: async () => {
-    try {
-      // 백엔드 API 호출 (실제 구현 시)
-      const response = await companyAPI.get(`${BACKEND_API_URL}/industries`);
+    // 백엔드 API가 아직 구현되지 않았으므로 목업 데이터 사용
+    // TODO: 백엔드에 /api/companies/industries 엔드포인트 구현 후 주석 해제
+    return companyService.getMockIndustries();
 
-      // 응답 데이터 검증
-      if (response.data && Array.isArray(response.data)) {
-        return response.data;
-      } else {
-        // 유효하지 않은 응답이면 목업 데이터 사용
-        console.log('백엔드 API 응답이 유효하지 않습니다. 목업 데이터를 사용합니다.');
-        return companyService.getMockIndustries();
-      }
-    } catch (error) {
-      console.error('Industries API error:', error);
-
-      // 개발 환경: 목업 데이터 반환 (백엔드 API 없을 때)
-      return companyService.getMockIndustries();
-    }
+    // try {
+    //   // 백엔드 API 호출 (실제 구현 시)
+    //   const response = await companyAPI.get(`${BACKEND_API_URL}/industries`);
+    //
+    //   // 응답 데이터 검증
+    //   if (response.data && Array.isArray(response.data)) {
+    //     return response.data;
+    //   } else {
+    //     // 유효하지 않은 응답이면 목업 데이터 사용
+    //     console.log('백엔드 API 응답이 유효하지 않습니다. 목업 데이터를 사용합니다.');
+    //     return companyService.getMockIndustries();
+    //   }
+    // } catch (error) {
+    //   console.error('Industries API error:', error);
+    //
+    //   // 개발 환경: 목업 데이터 반환 (백엔드 API 없을 때)
+    //   return companyService.getMockIndustries();
+    // }
   },
 
   /**
@@ -343,7 +403,9 @@ const companyService = {
   },
 
   /**
-   * 공시 목록 조회
+   * 공시 목록 조회 (백엔드 API 호출)
+   * 📝 문서 참고: readme/companyInfoFunction.md - "7. 공시 정보 조회" 섹션 (160-175라인)
+   *
    * @param {string} corpCode - 고유번호 (8자리)
    * @param {Object} params - 조회 파라미터
    * @param {string} params.bgn_de - 시작일 (YYYYMMDD), 기본값: 20240101
@@ -363,17 +425,30 @@ const companyService = {
         page_count = 10,
       } = params;
 
-      // DART API 호출
-      const response = await axios.get(`${DART_API_BASE_URL}/list.json`, {
-        params: {
-          crtfc_key: DART_API_KEY,
-          corp_code: corpCode,
-          bgn_de,
-          end_de,
-          pblntf_ty,
-          page_no,
-          page_count,
-        },
+      // 백엔드 API 호출: GET /api/companies/{corpCode}/disclosures
+      // 데이터 소스: DART API (백엔드 프록시를 통해 실시간 조회)
+      const requestParams = {
+        pageNo: page_no,
+        pageCount: page_count,
+      };
+
+      // 시작일이 있으면 추가
+      if (bgn_de) {
+        requestParams.bgnDe = bgn_de;
+      }
+
+      // 종료일이 있으면 추가
+      if (end_de) {
+        requestParams.endDe = end_de;
+      }
+
+      // 공시유형이 있으면 추가
+      if (pblntf_ty) {
+        requestParams.pblntfTy = pblntf_ty;
+      }
+
+      const response = await companyAPI.get(`${BACKEND_API_URL}/${corpCode}/disclosures`, {
+        params: requestParams,
       });
 
       if (response.data.status === '000') {
@@ -384,8 +459,8 @@ const companyService = {
     } catch (error) {
       console.error('Disclosures API error:', error);
 
-      // 개발 환경: 목업 데이터 반환 (CORS 에러 등으로 API 호출 실패 시)
-      console.log('CORS 에러로 공시 목업 데이터를 사용합니다:', corpCode);
+      // 개발 환경: 목업 데이터 반환 (백엔드 API 호출 실패 시)
+      console.log('백엔드 API 호출 실패로 공시 목업 데이터를 사용합니다:', corpCode);
 
       // params destructure (catch 블록에서 사용)
       const {
