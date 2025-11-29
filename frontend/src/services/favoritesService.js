@@ -1,4 +1,5 @@
 import axios from 'axios';
+import axiosInstance from './axiosInstance';
 import companyService from './companyService';
 
 // 금융위원회 주식시세정보 API 설정
@@ -7,15 +8,10 @@ const STOCK_API_BASE_URL =
   'https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo';
 
 // 백엔드 API URL
-const FAVORITES_API_URL = '/api/favorites';
+const FAVORITES_API_URL = '/favorites';
 
-// Axios 인스턴스 생성
-const favoritesAPI = axios.create({
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// Axios 인스턴스 (공통 인터셉터 포함)
+const favoritesAPI = axiosInstance;
 
 // 관심기업 서비스 객체
 const favoritesService = {

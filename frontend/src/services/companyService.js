@@ -1,19 +1,15 @@
 import axios from 'axios';
+import axiosInstance from './axiosInstance';
 
 // DART 전자공시 API 설정
 const DART_API_KEY = 'd76b2823154aff2001264dd25f0cc7bf256c6c7b';
 const DART_API_BASE_URL = 'https://opendart.fss.or.kr/api';
 
 // 백엔드 API URL (프록시 사용)
-const BACKEND_API_URL = '/api/companies';
+const BACKEND_API_URL = '/companies';
 
-// Axios 인스턴스 생성
-const companyAPI = axios.create({
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// Axios 인스턴스 (공통 인터셉터 포함)
+const companyAPI = axiosInstance;
 
 // 기업 서비스 객체
 const companyService = {
@@ -236,14 +232,14 @@ const companyService = {
   /**
    * 관심기업 등록
    * @param {string} stockCode - 종목코드
-   * @param {string} companyName - 기업명
+   * @param {string} corpCode - 기업 고유번호
    * @returns {Promise<Object>} 등록 결과
    */
-  addToFavorites: async (stockCode, companyName) => {
+  addToFavorites: async (stockCode, corpCode) => {
     try {
-      const response = await companyAPI.post('/api/favorites', {
+      const response = await companyAPI.post('/favorites', {
         stockCode,
-        companyName,
+        corpCode,
       });
       return response.data;
     } catch (error) {
@@ -259,7 +255,7 @@ const companyService = {
    */
   removeFromFavorites: async (stockCode) => {
     try {
-      const response = await companyAPI.delete(`/api/favorites/${stockCode}`);
+      const response = await companyAPI.delete(`/favorites/${stockCode}`);
       return response.data;
     } catch (error) {
       console.error('Remove from favorites error:', error);
@@ -273,7 +269,7 @@ const companyService = {
    */
   getFavorites: async () => {
     try {
-      const response = await companyAPI.get('/api/favorites');
+      const response = await companyAPI.get('/favorites');
       return response.data;
     } catch (error) {
       console.error('Get favorites error:', error);
