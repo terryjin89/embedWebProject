@@ -69,10 +69,7 @@ const favoritesService = {
       return favoritesWithStock;
     } catch (error) {
       console.error('Get favorites with stock info error:', error);
-
-      // 개발 환경: 목업 데이터 반환
-      console.log('백엔드 API가 없으므로 목업 데이터를 사용합니다.');
-      return favoritesService.getMockFavoritesWithStock();
+      throw error;
     }
   },
 
@@ -129,8 +126,14 @@ const favoritesService = {
     } catch (error) {
       console.error('Stock info API error:', error);
 
-      // 개발 환경: 목업 데이터 반환
-      return favoritesService.getMockStockInfo(stockCode);
+      // 주가 정보 조회 실패 시 null 값 반환
+      return {
+        currentPrice: null,
+        priceChange: null,
+        changeRate: null,
+        previousClose: null,
+        baseDate: null,
+      };
     }
   },
 
@@ -147,10 +150,7 @@ const favoritesService = {
       return response.data;
     } catch (error) {
       console.error('Remove favorite error:', error);
-
-      // 개발 환경: 성공 응답 반환
-      console.log('백엔드 API가 없으므로 목업 응답을 반환합니다.');
-      return { success: true, message: '관심기업이 삭제되었습니다.' };
+      throw error;
     }
   },
 
@@ -226,157 +226,6 @@ const favoritesService = {
     return value > 0 ? 'up' : 'down';
   },
 
-  /**
-   * 개발용 목업 데이터 - 주가 정보
-   * @param {string} stockCode - 종목코드
-   * @returns {Object} 목업 주가 정보
-   */
-  getMockStockInfo: (stockCode) => {
-    const mockStockData = {
-      '005930': {
-        // 삼성전자
-        currentPrice: 71500,
-        priceChange: 1200,
-        changeRate: 1.71,
-        previousClose: 70300,
-        baseDate: '20241114',
-      },
-      '000660': {
-        // SK하이닉스
-        currentPrice: 128000,
-        priceChange: -2500,
-        changeRate: -1.92,
-        previousClose: 130500,
-        baseDate: '20241114',
-      },
-      '005380': {
-        // 현대차
-        currentPrice: 215000,
-        priceChange: 5000,
-        changeRate: 2.38,
-        previousClose: 210000,
-        baseDate: '20241114',
-      },
-      '066570': {
-        // LG전자
-        currentPrice: 92300,
-        priceChange: -800,
-        changeRate: -0.86,
-        previousClose: 93100,
-        baseDate: '20241114',
-      },
-      '035420': {
-        // NAVER
-        currentPrice: 187500,
-        priceChange: 3500,
-        changeRate: 1.9,
-        previousClose: 184000,
-        baseDate: '20241114',
-      },
-      '035720': {
-        // 카카오
-        currentPrice: 43200,
-        priceChange: -600,
-        changeRate: -1.37,
-        previousClose: 43800,
-        baseDate: '20241114',
-      },
-    };
-
-    return (
-      mockStockData[stockCode] || {
-        currentPrice: null,
-        priceChange: null,
-        changeRate: null,
-        previousClose: null,
-        baseDate: null,
-      }
-    );
-  },
-
-  /**
-   * 개발용 목업 데이터 - 관심기업 + 주가 정보
-   * @returns {Array} 목업 관심기업 목록
-   */
-  getMockFavoritesWithStock: () => {
-    return [
-      {
-        id: 1,
-        stockCode: '005930',
-        corpCode: '00126380',
-        companyName: '삼성전자(주)',
-        stockName: '삼성전자',
-        registeredAt: '2024-11-01T10:30:00',
-        stockInfo: {
-          currentPrice: 71500,
-          priceChange: 1200,
-          changeRate: 1.71,
-          previousClose: 70300,
-          baseDate: '20241114',
-        },
-      },
-      {
-        id: 2,
-        stockCode: '000660',
-        corpCode: '00164779',
-        companyName: 'SK하이닉스(주)',
-        stockName: 'SK하이닉스',
-        registeredAt: '2024-11-03T14:20:00',
-        stockInfo: {
-          currentPrice: 128000,
-          priceChange: -2500,
-          changeRate: -1.92,
-          previousClose: 130500,
-          baseDate: '20241114',
-        },
-      },
-      {
-        id: 3,
-        stockCode: '035420',
-        corpCode: '00782756',
-        companyName: 'NAVER(주)',
-        stockName: 'NAVER',
-        registeredAt: '2024-11-05T09:15:00',
-        stockInfo: {
-          currentPrice: 187500,
-          priceChange: 3500,
-          changeRate: 1.9,
-          previousClose: 184000,
-          baseDate: '20241114',
-        },
-      },
-      {
-        id: 4,
-        stockCode: '035720',
-        corpCode: '00356370',
-        companyName: '카카오(주)',
-        stockName: '카카오',
-        registeredAt: '2024-11-07T16:45:00',
-        stockInfo: {
-          currentPrice: 43200,
-          priceChange: -600,
-          changeRate: -1.37,
-          previousClose: 43800,
-          baseDate: '20241114',
-        },
-      },
-      {
-        id: 5,
-        stockCode: '005380',
-        corpCode: '00401731',
-        companyName: '현대자동차(주)',
-        stockName: '현대차',
-        registeredAt: '2024-11-10T11:00:00',
-        stockInfo: {
-          currentPrice: 215000,
-          priceChange: 5000,
-          changeRate: 2.38,
-          previousClose: 210000,
-          baseDate: '20241114',
-        },
-      },
-    ];
-  },
 };
 
 export default favoritesService;

@@ -79,16 +79,11 @@ const companyService = {
           page: response.data.currentPage + 1,  // 0-based -> 1-based
         };
       } else {
-        // 유효하지 않은 응답이면 목업 데이터 사용
-        console.log('백엔드 API 응답이 유효하지 않습니다. 목업 데이터를 사용합니다.');
-        return companyService.getMockCompanyList(params);
+        throw new Error('Invalid API response');
       }
     } catch (error) {
       console.error('Company list API error:', error);
-
-      // 개발 환경: 목업 데이터 반환 (백엔드 API 없을 때)
-      console.log('백엔드 API가 없으므로 목업 데이터를 사용합니다.');
-      return companyService.getMockCompanyList(params);
+      throw error;
     }
   },
 
@@ -130,58 +125,6 @@ const companyService = {
       };
     } catch (error) {
       console.error('Company detail API error:', error);
-
-      // 개발 환경: 목업 데이터 반환 (백엔드 API 호출 실패 시)
-      const mockCompanyDetails = {
-        '00126380': {
-          status: '000',
-          message: '정상',
-          corp_code: '00126380',
-          corp_name: '삼성전자(주)',
-          corp_name_eng: 'SAMSUNG ELECTRONICS CO.,LTD.',
-          stock_name: '삼성전자',
-          stock_code: '005930',
-          ceo_nm: '전영현',
-          corp_cls: 'Y',
-          jurir_no: '1301110006246',
-          bizr_no: '1248100998',
-          adres: '경기도 수원시 영통구 삼성로 129 (매탄동)',
-          hm_url: 'www.samsung.com',
-          ir_url: '',
-          phn_no: '031-200-1114',
-          fax_no: '031-200-7538',
-          induty_code: '264',
-          est_dt: '19690113',
-          acc_mt: '12',
-        },
-        '00164779': {
-          status: '000',
-          message: '정상',
-          corp_code: '00164779',
-          corp_name: 'SK하이닉스(주)',
-          corp_name_eng: 'SK hynix Inc.',
-          stock_name: 'SK하이닉스',
-          stock_code: '000660',
-          ceo_nm: '곽노정',
-          corp_cls: 'Y',
-          jurir_no: '1301110017764',
-          bizr_no: '1248815595',
-          adres: '경기도 이천시 부발읍 경충대로 2091',
-          hm_url: 'www.skhynix.com',
-          ir_url: '',
-          phn_no: '031-630-4114',
-          fax_no: '',
-          induty_code: '264',
-          est_dt: '19960322',
-          acc_mt: '12',
-        },
-      };
-
-      if (mockCompanyDetails[corpCode]) {
-        console.log('백엔드 API 호출 실패로 목업 데이터를 사용합니다:', corpCode);
-        return mockCompanyDetails[corpCode];
-      }
-
       throw error;
     }
   },
@@ -205,28 +148,17 @@ const companyService = {
    * @returns {Promise<Array>} 업종 목록 [{ code: string, name: string }]
    */
   getIndustries: async () => {
-    // 백엔드 API가 아직 구현되지 않았으므로 목업 데이터 사용
-    // TODO: 백엔드에 /api/companies/industries 엔드포인트 구현 후 주석 해제
-    return companyService.getMockIndustries();
-
-    // try {
-    //   // 백엔드 API 호출 (실제 구현 시)
-    //   const response = await companyAPI.get(`${BACKEND_API_URL}/industries`);
-    //
-    //   // 응답 데이터 검증
-    //   if (response.data && Array.isArray(response.data)) {
-    //     return response.data;
-    //   } else {
-    //     // 유효하지 않은 응답이면 목업 데이터 사용
-    //     console.log('백엔드 API 응답이 유효하지 않습니다. 목업 데이터를 사용합니다.');
-    //     return companyService.getMockIndustries();
-    //   }
-    // } catch (error) {
-    //   console.error('Industries API error:', error);
-    //
-    //   // 개발 환경: 목업 데이터 반환 (백엔드 API 없을 때)
-    //   return companyService.getMockIndustries();
-    // }
+    try {
+      const response = await companyAPI.get(`${BACKEND_API_URL}/industries`);
+      if (response.data && Array.isArray(response.data)) {
+        return response.data;
+      } else {
+        throw new Error('Invalid API response');
+      }
+    } catch (error) {
+      console.error('Industries API error:', error);
+      throw error;
+    }
   },
 
   /**
@@ -275,127 +207,6 @@ const companyService = {
       console.error('Get favorites error:', error);
       throw error;
     }
-  },
-
-  /**
-   * 개발용 목업 데이터 - 기업 목록
-   * @param {Object} params - 조회 파라미터
-   * @returns {Object} 목업 기업 목록
-   */
-  getMockCompanyList: (params = {}) => {
-    const { page = 1, limit = 20, search = '', industry = '' } = params;
-
-    // 목업 데이터
-    const allCompanies = [
-      {
-        corp_code: '00126380',
-        corp_name: '삼성전자(주)',
-        stock_name: '삼성전자',
-        stock_code: '005930',
-        ceo_nm: '전영현',
-        induty_code: '264',
-        est_dt: '19690113',
-        isFavorite: false,
-      },
-      {
-        corp_code: '00164779',
-        corp_name: 'SK하이닉스(주)',
-        stock_name: 'SK하이닉스',
-        stock_code: '000660',
-        ceo_nm: '곽노정',
-        induty_code: '264',
-        est_dt: '19960322',
-        isFavorite: false,
-      },
-      {
-        corp_code: '00401731',
-        corp_name: '현대자동차(주)',
-        stock_name: '현대차',
-        stock_code: '005380',
-        ceo_nm: '장재훈',
-        induty_code: '304',
-        est_dt: '19670222',
-        isFavorite: false,
-      },
-      {
-        corp_code: '00176701',
-        corp_name: 'LG전자(주)',
-        stock_name: 'LG전자',
-        stock_code: '066570',
-        ceo_nm: '조주완',
-        induty_code: '264',
-        est_dt: '19580101',
-        isFavorite: false,
-      },
-      {
-        corp_code: '00782756',
-        corp_name: 'NAVER(주)',
-        stock_name: 'NAVER',
-        stock_code: '035420',
-        ceo_nm: '최수연',
-        induty_code: '639',
-        est_dt: '19990602',
-        isFavorite: false,
-      },
-      {
-        corp_code: '00356370',
-        corp_name: '카카오(주)',
-        stock_name: '카카오',
-        stock_code: '035720',
-        ceo_nm: '정신아',
-        induty_code: '639',
-        est_dt: '19950204',
-        isFavorite: false,
-      },
-    ];
-
-    // 검색 필터링
-    let filteredCompanies = allCompanies;
-    if (search) {
-      filteredCompanies = filteredCompanies.filter(
-        (company) =>
-          company.corp_name.includes(search) ||
-          company.stock_name.includes(search) ||
-          company.stock_code.includes(search)
-      );
-    }
-
-    // 업종 필터링
-    if (industry) {
-      filteredCompanies = filteredCompanies.filter(
-        (company) => company.induty_code === industry
-      );
-    }
-
-    // 페이지네이션
-    const total = filteredCompanies.length;
-    const totalPages = Math.ceil(total / limit);
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const companies = filteredCompanies.slice(startIndex, endIndex);
-
-    return {
-      companies,
-      total,
-      page,
-      limit,
-      totalPages,
-    };
-  },
-
-  /**
-   * 개발용 목업 데이터 - 업종 목록
-   * @returns {Array} 업종 목록
-   */
-  getMockIndustries: () => {
-    return [
-      { code: '', name: '전체' },
-      { code: '264', name: '전자부품/반도체' },
-      { code: '304', name: '자동차' },
-      { code: '639', name: 'IT서비스' },
-      { code: '241', name: '화학' },
-      { code: '291', name: '기계' },
-    ];
   },
 
   /**
@@ -454,98 +265,7 @@ const companyService = {
       }
     } catch (error) {
       console.error('Disclosures API error:', error);
-
-      // 개발 환경: 목업 데이터 반환 (백엔드 API 호출 실패 시)
-      console.log('백엔드 API 호출 실패로 공시 목업 데이터를 사용합니다:', corpCode);
-
-      // params destructure (catch 블록에서 사용)
-      const {
-        pblntf_ty = '',
-        page_no = 1,
-        page_count = 10,
-      } = params;
-
-      const mockDisclosures = [
-        {
-          corp_code: corpCode,
-          corp_name: '삼성전자',
-          stock_code: '005930',
-          corp_cls: 'Y',
-          report_nm: '사업보고서 (2024.12)',
-          rcept_no: '20250314000001',
-          flr_nm: '삼성전자',
-          rcept_dt: '20250314',
-          rm: '',
-        },
-        {
-          corp_code: corpCode,
-          corp_name: '삼성전자',
-          stock_code: '005930',
-          corp_cls: 'Y',
-          report_nm: '분기보고서 (2024.09)',
-          rcept_no: '20241114000002',
-          flr_nm: '삼성전자',
-          rcept_dt: '20241114',
-          rm: '',
-        },
-        {
-          corp_code: corpCode,
-          corp_name: '삼성전자',
-          stock_code: '005930',
-          corp_cls: 'Y',
-          report_nm: '반기보고서 (2024.06)',
-          rcept_no: '20240814000003',
-          flr_nm: '삼성전자',
-          rcept_dt: '20240814',
-          rm: '',
-        },
-        {
-          corp_code: corpCode,
-          corp_name: '삼성전자',
-          stock_code: '005930',
-          corp_cls: 'Y',
-          report_nm: '분기보고서 (2024.03)',
-          rcept_no: '20240514000004',
-          flr_nm: '삼성전자',
-          rcept_dt: '20240514',
-          rm: '',
-        },
-        {
-          corp_code: corpCode,
-          corp_name: '삼성전자',
-          stock_code: '005930',
-          corp_cls: 'Y',
-          report_nm: '주요사항보고서(자기주식취득결정)',
-          rcept_no: '20240315000005',
-          flr_nm: '삼성전자',
-          rcept_dt: '20240315',
-          rm: '',
-        },
-      ];
-
-      // 공시 유형 필터링
-      let filteredDisclosures = mockDisclosures;
-      if (pblntf_ty) {
-        // 실제로는 pblntf_ty에 따라 필터링해야 하지만, 목업에서는 전체 반환
-        filteredDisclosures = mockDisclosures;
-      }
-
-      // 페이지네이션
-      const total = filteredDisclosures.length;
-      const totalPages = Math.ceil(total / page_count);
-      const startIndex = (page_no - 1) * page_count;
-      const endIndex = startIndex + page_count;
-      const list = filteredDisclosures.slice(startIndex, endIndex);
-
-      return {
-        status: '000',
-        message: '정상',
-        list,
-        total_count: total,
-        total_page: totalPages,
-        page_no,
-        page_count,
-      };
+      throw error;
     }
   },
 
