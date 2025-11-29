@@ -37,7 +37,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/favorites")
+@RequestMapping("/api/favorites")
 @RequiredArgsConstructor
 @Tag(name = "Favorites")
 @SecurityRequirement(name = "bearerAuth")

@@ -31,8 +31,8 @@ import java.time.LocalDateTime;
     name = "stock",
     uniqueConstraints = {
         @UniqueConstraint(
-            name = "uk_user_stock",
-            columnNames = {"user_code", "stock_code"}
+            name = "uk_user_corp",
+            columnNames = {"user_code", "corp_code"}
         )
     },
     indexes = {
@@ -76,10 +76,10 @@ public class Stock {
     /**
      * 주식 종목코드
      *
-     * 6자리 주식 종목코드
+     * 6자리 주식 종목코드 (비상장 기업의 경우 null 가능)
      * Company 엔티티의 stockCode 컬럼 값과 연결됩니다.
      */
-    @Column(name = "stock_code", length = 6, nullable = false)
+    @Column(name = "stock_code", length = 6, nullable = true)
     private String stockCode;
 
     /**

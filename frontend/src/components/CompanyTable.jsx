@@ -154,7 +154,7 @@ function CompanyTable() {
       } else {
         await companyService.addToFavorites(
           company.stock_code,
-          company.corp_name
+          company.corp_code
         );
       }
 

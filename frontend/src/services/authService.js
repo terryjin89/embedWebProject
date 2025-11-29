@@ -18,8 +18,8 @@
  */
 import axios from 'axios';
 
-// API Base URL (환경 변수에서 가져오기)
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+// API Base URL - Vite 프록시 사용 (/api -> backend:8080/api)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 // Axios 인스턴스 생성
 const authAPI = axios.create({
