@@ -149,6 +149,13 @@ public class CompanyDTO {
     private LocalDateTime updatedAt;
 
     /**
+     * 관심기업 등록 여부
+     * 현재 로그인한 사용자가 이 기업을 관심기업으로 등록했는지 여부
+     */
+    @JsonProperty("isFavorite")
+    private Boolean isFavorite;
+
+    /**
      * Company 엔티티를 CompanyDTO로 변환
      *
      * @param company Company 엔티티
@@ -181,6 +188,7 @@ public class CompanyDTO {
                 .accMt(company.getAccMt())
                 .createdAt(company.getCreatedAt())
                 .updatedAt(company.getUpdatedAt())
+                .isFavorite(false)  // 기본값 false, CompanyService에서 설정
                 .build();
     }
 
@@ -218,6 +226,7 @@ public class CompanyDTO {
                 .accMt(dartResponse.getAccMt())
                 .createdAt(null)  // DART API 응답에는 없음
                 .updatedAt(null)  // DART API 응답에는 없음
+                .isFavorite(false)  // 기본값 false, CompanyService에서 설정
                 .build();
     }
 
