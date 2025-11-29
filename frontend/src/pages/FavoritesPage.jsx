@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import FavoriteTable from '../components/FavoriteTable';
 import './FavoritesPage.css';
 
@@ -10,9 +11,53 @@ import './FavoritesPage.css';
  */
 function FavoritesPage() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  /**
+   * 로그아웃 핸들러
+   */
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/';
+  };
+
+  /**
+   * 네비게이션 바 렌더링
+   */
+  const renderNavigation = () => (
+    <div className="form-toggle">
+      {!user ? (
+        <>
+          <button className="toggle-btn" onClick={() => navigate('/', { state: { view: 'login' } })}>
+            로그인
+          </button>
+          <button className="toggle-btn" onClick={() => navigate('/', { state: { view: 'signup' } })}>
+            회원가입
+          </button>
+        </>
+      ) : (
+        <button className="toggle-btn" onClick={handleLogout}>로그아웃</button>
+      )}
+      <button className="toggle-btn" onClick={() => navigate('/', { state: { view: 'exchange' } })}>
+        환율정보
+      </button>
+      <button className="toggle-btn" onClick={() => navigate('/', { state: { view: 'companies' } })}>
+        기업정보
+      </button>
+      <button className="toggle-btn active" onClick={() => navigate('/favorites')}>
+        관심기업
+      </button>
+      <button className="toggle-btn" onClick={() => navigate('/news')}>
+        뉴스검색
+      </button>
+    </div>
+  );
 
   return (
     <div className="favorites-page">
+      {/* 네비게이션 바 */}
+      {renderNavigation()}
+
       {/* 페이지 헤더 */}
       <header className="page-header">
         <div className="header-content">

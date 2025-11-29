@@ -58,6 +58,25 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
     );
 
     /**
+     * 사용자 코드와 기업 코드로 관심기업 조회
+     *
+     * 특정 사용자가 특정 기업을 관심기업으로 등록했는지 확인할 때 사용합니다.
+     * (비상장 기업 포함)
+     *
+     * @param userCode 사용자 코드
+     * @param corpCode 기업 코드
+     * @return 관심기업 Optional
+     */
+    @Query("SELECT s FROM Stock s " +
+           "JOIN FETCH s.member m " +
+           "JOIN FETCH s.company c " +
+           "WHERE m.userCode = :userCode AND c.corpCode = :corpCode")
+    Optional<Stock> findByUserCodeAndCorpCode(
+        @Param("userCode") String userCode,
+        @Param("corpCode") String corpCode
+    );
+
+    /**
      * 사용자 코드와 종목코드로 관심기업 존재 여부 확인
      *
      * 중복 등록을 방지하기 위해 사용합니다.

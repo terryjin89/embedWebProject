@@ -22,12 +22,10 @@ import lombok.*;
 public class AddFavoriteRequest {
 
     /**
-     * 종목코드 (6자리)
-     * 예: "005930" (삼성전자)
+     * 종목코드 (6자리, 비상장 기업의 경우 null 가능)
+     * 예: "005930" (삼성전자), null (비상장 기업)
      */
-    @NotBlank(message = "종목코드는 필수입니다.")
-    @Size(min = 6, max = 6, message = "종목코드는 6자리여야 합니다.")
-    @Pattern(regexp = "\\d{6}", message = "종목코드는 숫자 6자리여야 합니다.")
+    @Pattern(regexp = "^$|\\d{6}", message = "종목코드는 숫자 6자리여야 합니다. (비상장 기업은 빈 문자열 가능)")
     private String stockCode;
 
     /**

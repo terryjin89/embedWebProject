@@ -7,8 +7,8 @@
  */
 import axios from 'axios';
 
-// API Base URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+// API Base URL - Vite 프록시 사용 (/api -> backend:8080/api)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 // Axios 인스턴스 생성
 const axiosInstance = axios.create({
