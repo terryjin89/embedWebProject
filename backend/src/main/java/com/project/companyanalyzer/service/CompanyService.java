@@ -6,14 +6,21 @@ import com.project.companyanalyzer.dto.DartCompanyResponse;
 import com.project.companyanalyzer.dto.DartDisclosureResponse;
 import com.project.companyanalyzer.entity.Company;
 import com.project.companyanalyzer.repository.CompanyRepository;
+import com.project.companyanalyzer.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 기업 정보 서비스
@@ -36,6 +43,7 @@ public class CompanyService {
 
     private final CompanyRepository companyRepository;
     private final DartApiService dartApiService;
+    private final StockRepository stockRepository;
 
     /**
      * 전체 기업 목록 조회 (페이지네이션)
@@ -49,6 +57,10 @@ public class CompanyService {
 
         Page<Company> companyPage = companyRepository.findAll(pageable);
         Page<CompanyDTO> dtoPage = companyPage.map(CompanyDTO::fromEntity);
+
+        // 관심기업 상태 설정
+        List<CompanyDTO> companies = dtoPage.getContent();
+        setFavoritesForCompanies(companies);
 
         log.debug("[CompanyService] 조회 결과 - 총 {}건, {}페이지",
                 dtoPage.getTotalElements(), dtoPage.getTotalPages());
@@ -77,6 +89,10 @@ public class CompanyService {
         Page<Company> companyPage = companyRepository.searchCompanies(
                 keyword, indutyCode, corpCls, pageable);
         Page<CompanyDTO> dtoPage = companyPage.map(CompanyDTO::fromEntity);
+
+        // 관심기업 상태 설정
+        List<CompanyDTO> companies = dtoPage.getContent();
+        setFavoritesForCompanies(companies);
 
         log.debug("[CompanyService] 검색 결과 - 총 {}건", dtoPage.getTotalElements());
 
@@ -261,5 +277,67 @@ public class CompanyService {
      */
     public long countByCorpCls(String corpCls) {
         return companyRepository.countByCorpCls(corpCls);
+    }
+
+    /**
+     * SecurityContext에서 현재 로그인한 사용자의 userCode 추출
+     *
+     * @return 사용자 코드 (userCode), 인증되지 않은 경우 null
+     */
+    private String getUserCodeFromAuthentication() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return null;
+            }
+
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                UserDetails userDetails = (UserDetails) principal;
+                return userDetails.getUsername(); // username = userCode
+            }
+
+            return null;
+        } catch (Exception e) {
+            log.debug("[CompanyService] 인증 정보 조회 실패 (익명 사용자일 수 있음)", e);
+            return null;
+        }
+    }
+
+    /**
+     * CompanyDTO 리스트에 관심기업 상태(isFavorite) 설정
+     *
+     * @param companies CompanyDTO 리스트
+     */
+    private void setFavoritesForCompanies(List<CompanyDTO> companies) {
+        if (companies == null || companies.isEmpty()) {
+            return;
+        }
+
+        // 현재 로그인한 사용자의 userCode 조회
+        String userCode = getUserCodeFromAuthentication();
+        if (userCode == null) {
+            // 인증되지 않은 사용자는 모든 기업이 관심기업이 아님
+            companies.forEach(company -> company.setIsFavorite(false));
+            return;
+        }
+
+        // 사용자의 관심기업 corpCode 목록 조회
+        List<String> favoriteCorpCodes = stockRepository.findByUserCodeWithMemberAndCompany(userCode)
+                .stream()
+                .map(stock -> stock.getCompany().getCorpCode())
+                .collect(Collectors.toList());
+
+        Set<String> favoriteCorpCodeSet = favoriteCorpCodes.stream().collect(Collectors.toSet());
+
+        // 각 CompanyDTO에 isFavorite 설정
+        companies.forEach(company -> {
+            boolean isFavorite = favoriteCorpCodeSet.contains(company.getCorpCode());
+            company.setIsFavorite(isFavorite);
+        });
+
+        log.debug("[CompanyService] 관심기업 상태 설정 완료 - userCode: {}, 관심기업 수: {}",
+                userCode, favoriteCorpCodes.size());
     }
 }
